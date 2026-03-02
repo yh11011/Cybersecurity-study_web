@@ -5,17 +5,24 @@ Phase 1 MVP
 
 import asyncio
 import json
+import random
 import re
+import smtplib
+import string
 import time
 from collections import defaultdict
 from datetime import datetime, timezone
+from email.mime.text import MIMEText
 from typing import Optional
+
+import os
 
 import aiosqlite
 import httpx
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
 from fastapi import FastAPI, HTTPException, Request, Response
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -23,12 +30,38 @@ from pydantic import BaseModel
 # ─── Config ──────────────────────────────────────────────────────────────────
 
 DB_PATH = "cyberlearn.db"
-OLLAMA_URL = "http://localhost:11434/api/chat"
-OLLAMA_MODEL = "deepseek-r1:14b"  # fallback: qwen:14b
 RATE_LIMIT_PER_MIN = 10  # AI calls per session per minute
+
+# AI Provider: "github" (GitHub Models GPT-4.1) or "ollama" (local)
+AI_PROVIDER = os.getenv("AI_PROVIDER", "github")
+
+# GitHub Models (GPT-4.1)
+GITHUB_TOKEN = os.getenv("GITHUB_TOKEN", "")
+GITHUB_MODELS_URL = "https://models.inference.ai.azure.com/chat/completions"
+GITHUB_MODEL = os.getenv("GITHUB_MODEL", "gpt-4.1")
+
+# Ollama (local fallback)
+OLLAMA_URL = "http://localhost:11434/api/chat"
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "deepseek-r1:14b")
+
+# SMTP (Gmail) for password reset
+SMTP_EMAIL = os.getenv("SMTP_EMAIL", "h11.bot.vn@gmail.com")
+SMTP_APP_PASSWORD = os.getenv("SMTP_APP_PASSWORD", "elhz esdn bamh jwpw")
+SMTP_HOST = "smtp.gmail.com"
+SMTP_PORT = 587
 
 ph = PasswordHasher()
 app = FastAPI(title="CyberLearn API")
+
+# CORS — 允許 GitHub Pages 前端跨域存取
+CORS_ORIGINS = os.getenv("CORS_ORIGINS", "https://yh11011.github.io").split(",")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=CORS_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # In-memory rate limiter: session_id -> list of timestamps
 _rate_store: dict[str, list[float]] = defaultdict(list)
@@ -185,10 +218,25 @@ async def init_db():
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 nickname TEXT UNIQUE NOT NULL,
                 password_hash TEXT NOT NULL,
+                email TEXT DEFAULT NULL,
                 xp INTEGER DEFAULT 0,
                 level INTEGER DEFAULT 1,
                 completed_lessons TEXT DEFAULT '[]',
                 created_at TEXT DEFAULT (datetime('now'))
+            )
+        """)
+        # Add email column if upgrading from old schema
+        try:
+            await db.execute("ALTER TABLE users ADD COLUMN email TEXT DEFAULT NULL")
+        except Exception:
+            pass
+        await db.execute("""
+            CREATE TABLE IF NOT EXISTS password_resets (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                code TEXT NOT NULL,
+                created_at TEXT DEFAULT (datetime('now')),
+                used INTEGER DEFAULT 0
             )
         """)
         await db.execute("""
@@ -263,6 +311,18 @@ class AnswerRequest(BaseModel):
     answer: str
     time_spent: int
 
+class BindEmailRequest(BaseModel):
+    user_id: int
+    email: str
+
+class ForgotPasswordRequest(BaseModel):
+    email: str
+
+class ResetPasswordRequest(BaseModel):
+    email: str
+    code: str
+    new_password: str
+
 # ─── Helpers ──────────────────────────────────────────────────────────────────
 
 def check_rate_limit(session_id: str) -> bool:
@@ -293,6 +353,20 @@ def xp_to_level(xp: int) -> int:
     if xp < 600: return 3
     if xp < 1000: return 4
     return 5
+
+def send_reset_email(to_email: str, code: str):
+    """Send password reset code via Gmail SMTP."""
+    msg = MIMEText(
+        f"你的 CyberLearn 密碼重設驗證碼是：\n\n{code}\n\n此驗證碼 10 分鐘內有效。\n如果不是你本人操作，請忽略此郵件。",
+        "plain", "utf-8"
+    )
+    msg["Subject"] = "CyberLearn 密碼重設驗證碼"
+    msg["From"] = SMTP_EMAIL
+    msg["To"] = to_email
+    with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
+        server.starttls()
+        server.login(SMTP_EMAIL, SMTP_APP_PASSWORD)
+        server.send_message(msg)
 
 def build_system_prompt(lesson_id: str) -> str:
     lesson = LESSONS.get(lesson_id, {})
@@ -325,7 +399,8 @@ async def startup():
 
 @app.post("/api/register")
 async def register(req: RegisterRequest):
-    if len(req.nickname) < 2 or len(req.nickname) > 20:
+    nickname = req.nickname.strip()
+    if len(nickname) < 2 or len(nickname) > 20:
         raise HTTPException(400, "暱稱長度需在 2–20 字元之間")
     if len(req.password) < 8:
         raise HTTPException(400, "密碼至少需要 8 個字元")
@@ -334,24 +409,32 @@ async def register(req: RegisterRequest):
     try:
         async with aiosqlite.connect(DB_PATH) as db:
             await db.execute("PRAGMA journal_mode=WAL")
+            async with db.execute(
+                "SELECT 1 FROM users WHERE nickname = ? COLLATE NOCASE",
+                (nickname,)
+            ) as cur:
+                existed = await cur.fetchone()
+            if existed:
+                raise HTTPException(409, "這個暱稱已經被使用了，換一個試試？")
             await db.execute(
                 "INSERT INTO users (nickname, password_hash) VALUES (?, ?)",
-                (req.nickname, pw_hash)
+                (nickname, pw_hash)
             )
             await db.commit()
-            async with db.execute("SELECT id FROM users WHERE nickname=?", (req.nickname,)) as cur:
+            async with db.execute("SELECT id FROM users WHERE nickname=?", (nickname,)) as cur:
                 row = await cur.fetchone()
-            return {"user_id": row[0], "nickname": req.nickname, "xp": 0, "level": 1}
+            return {"user_id": row[0], "nickname": nickname, "xp": 0, "level": 1}
     except aiosqlite.IntegrityError:
         raise HTTPException(409, "這個暱稱已經被使用了，換一個試試？")
 
 @app.post("/api/login")
 async def login(req: LoginRequest):
+    nickname = req.nickname.strip()
     async with aiosqlite.connect(DB_PATH) as db:
         await db.execute("PRAGMA journal_mode=WAL")
         async with db.execute(
-            "SELECT id, password_hash, xp, level, completed_lessons FROM users WHERE nickname=?",
-            (req.nickname,)
+            "SELECT id, password_hash, xp, level, completed_lessons, email FROM users WHERE nickname=? COLLATE NOCASE",
+            (nickname,)
         ) as cur:
             row = await cur.fetchone()
     if not row:
@@ -364,11 +447,78 @@ async def login(req: LoginRequest):
     completed = json.loads(row[4] or "[]")
     return {
         "user_id": row[0],
-        "nickname": req.nickname,
+        "nickname": nickname,
         "xp": row[2],
         "level": row[3],
-        "completed_lessons": completed
+        "completed_lessons": completed,
+        "email": row[5] or ""
     }
+
+@app.post("/api/bind_email")
+async def bind_email(req: BindEmailRequest):
+    email = req.email.strip().lower()
+    if not re.match(r'^[^@\s]+@[^@\s]+\.[^@\s]+$', email):
+        raise HTTPException(400, "Email 格式不正確")
+    async with aiosqlite.connect(DB_PATH) as db:
+        await db.execute("PRAGMA journal_mode=WAL")
+        async with db.execute("SELECT id FROM users WHERE id=?", (req.user_id,)) as cur:
+            if not await cur.fetchone():
+                raise HTTPException(404, "找不到使用者")
+        await db.execute("UPDATE users SET email=? WHERE id=?", (email, req.user_id))
+        await db.commit()
+    return {"ok": True, "email": email}
+
+@app.post("/api/forgot_password")
+async def forgot_password(req: ForgotPasswordRequest):
+    email = req.email.strip().lower()
+    async with aiosqlite.connect(DB_PATH) as db:
+        await db.execute("PRAGMA journal_mode=WAL")
+        async with db.execute("SELECT id FROM users WHERE email=? COLLATE NOCASE", (email,)) as cur:
+            row = await cur.fetchone()
+        if not row:
+            raise HTTPException(404, "此 Email 尚未綁定任何帳號")
+        user_id = row[0]
+        code = ''.join(random.choices(string.digits, k=6))
+        await db.execute(
+            "INSERT INTO password_resets (user_id, code) VALUES (?, ?)",
+            (user_id, code)
+        )
+        await db.commit()
+    try:
+        send_reset_email(email, code)
+    except Exception as e:
+        raise HTTPException(500, f"郵件發送失敗：{str(e)}")
+    return {"ok": True, "message": "驗證碼已寄出，請查收信箱"}
+
+@app.post("/api/reset_password")
+async def reset_password(req: ResetPasswordRequest):
+    email = req.email.strip().lower()
+    if len(req.new_password) < 8:
+        raise HTTPException(400, "密碼至少需要 8 個字元")
+    async with aiosqlite.connect(DB_PATH) as db:
+        await db.execute("PRAGMA journal_mode=WAL")
+        async with db.execute("SELECT id FROM users WHERE email=? COLLATE NOCASE", (email,)) as cur:
+            row = await cur.fetchone()
+        if not row:
+            raise HTTPException(404, "此 Email 尚未綁定任何帳號")
+        user_id = row[0]
+        async with db.execute(
+            "SELECT id, created_at FROM password_resets WHERE user_id=? AND code=? AND used=0 ORDER BY created_at DESC LIMIT 1",
+            (user_id, req.code)
+        ) as cur:
+            reset_row = await cur.fetchone()
+        if not reset_row:
+            raise HTTPException(400, "驗證碼無效或已使用")
+        # Check 10 min expiry
+        created = datetime.fromisoformat(reset_row[1])
+        now = datetime.utcnow()
+        if (now - created).total_seconds() > 600:
+            raise HTTPException(400, "驗證碼已過期，請重新申請")
+        pw_hash = ph.hash(req.new_password)
+        await db.execute("UPDATE users SET password_hash=? WHERE id=?", (pw_hash, user_id))
+        await db.execute("UPDATE password_resets SET used=1 WHERE id=?", (reset_row[0],))
+        await db.commit()
+    return {"ok": True, "message": "密碼已重設成功，請用新密碼登入"}
 
 @app.get("/api/lessons")
 async def get_lessons():
@@ -394,34 +544,70 @@ async def chat(req: ChatRequest):
         messages.append({"role": m["role"], "content": m["content"]})
     messages.append({"role": "user", "content": user_msg})
 
-    # Stream from Ollama
+    # Stream AI response (GitHub Models or Ollama)
     async def stream_response():
         full_text = ""
         try:
-            async with httpx.AsyncClient(timeout=120.0) as client:
-                async with client.stream("POST", OLLAMA_URL, json={
-                    "model": OLLAMA_MODEL,
-                    "messages": messages,
-                    "stream": True,
-                    "options": {"num_predict": 300, "temperature": 0.7}
-                }) as resp:
-                    async for line in resp.aiter_lines():
-                        if not line:
-                            continue
-                        try:
-                            data = json.loads(line)
-                            chunk = data.get("message", {}).get("content", "")
-                            if chunk:
-                                # Mask code blocks for layer 1
-                                safe_chunk = chunk
-                                full_text += chunk
-                                yield f"data: {json.dumps({'chunk': safe_chunk})}\n\n"
-                            if data.get("done"):
-                                # Final: mask any code blocks in full response
+            if AI_PROVIDER == "github":
+                # GitHub Models (OpenAI-compatible SSE)
+                async with httpx.AsyncClient(timeout=120.0) as client:
+                    async with client.stream("POST", GITHUB_MODELS_URL,
+                        headers={
+                            "Authorization": f"Bearer {GITHUB_TOKEN}",
+                            "Content-Type": "application/json",
+                        },
+                        json={
+                            "model": GITHUB_MODEL,
+                            "messages": messages,
+                            "stream": True,
+                            "max_tokens": 300,
+                            "temperature": 0.7,
+                        }
+                    ) as resp:
+                        if resp.status_code != 200:
+                            body = await resp.aread()
+                            yield f"data: {json.dumps({'error': f'AI 服務回傳錯誤 ({resp.status_code})'})}\n\n"
+                            return
+                        async for line in resp.aiter_lines():
+                            if not line.startswith("data: "):
+                                continue
+                            payload = line[len("data: "):]
+                            if payload.strip() == "[DONE]":
                                 masked = mask_code_blocks(full_text)
                                 yield f"data: {json.dumps({'done': True, 'full': masked})}\n\n"
-                        except json.JSONDecodeError:
-                            continue
+                                return
+                            try:
+                                data = json.loads(payload)
+                                delta = data.get("choices", [{}])[0].get("delta", {})
+                                chunk = delta.get("content", "")
+                                if chunk:
+                                    full_text += chunk
+                                    yield f"data: {json.dumps({'chunk': chunk})}\n\n"
+                            except json.JSONDecodeError:
+                                continue
+            else:
+                # Ollama (local)
+                async with httpx.AsyncClient(timeout=120.0) as client:
+                    async with client.stream("POST", OLLAMA_URL, json={
+                        "model": OLLAMA_MODEL,
+                        "messages": messages,
+                        "stream": True,
+                        "options": {"num_predict": 300, "temperature": 0.7}
+                    }) as resp:
+                        async for line in resp.aiter_lines():
+                            if not line:
+                                continue
+                            try:
+                                data = json.loads(line)
+                                chunk = data.get("message", {}).get("content", "")
+                                if chunk:
+                                    full_text += chunk
+                                    yield f"data: {json.dumps({'chunk': chunk})}\n\n"
+                                if data.get("done"):
+                                    masked = mask_code_blocks(full_text)
+                                    yield f"data: {json.dumps({'done': True, 'full': masked})}\n\n"
+                            except json.JSONDecodeError:
+                                continue
         except Exception as e:
             yield f"data: {json.dumps({'error': '阿安現在有點忙，請稍後再試 😅'})}\n\n"
 

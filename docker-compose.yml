@@ -4,4 +4,9 @@ services:
     container_name: cyberlearn-web
     ports:
       - "${APP_PORT:-8000}:8000"
+    environment:
+      - AI_PROVIDER=${AI_PROVIDER:-github}
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - GITHUB_MODEL=${GITHUB_MODEL:-gpt-4.1}
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-deepseek-r1:14b}
     restart: unless-stopped

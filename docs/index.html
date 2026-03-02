@@ -794,6 +794,9 @@
 <!--  ALPINE.JS APP                                                     -->
 <!-- ══════════════════════════════════════════════════════════════════ -->
 <script>
+// 後端 API 位址（Cloudflare Tunnel URL，部署後替換）
+const API_BASE = 'https://creek-camps-gossip-weed.trycloudflare.com';
+
 function cyberlearn() {
   return {
     // ── State ──
@@ -878,7 +881,7 @@ function cyberlearn() {
       this.authError = '';
       this.authLoading = true;
       try {
-        const res = await fetch('/api/login', {
+        const res = await fetch(API_BASE + '/api/login', {
           method: 'POST',
           headers: {'Content-Type':'application/json'},
           body: JSON.stringify(this.loginForm)
@@ -902,7 +905,7 @@ function cyberlearn() {
       if (this.regForm.password.length < 8) { this.authError = '密碼至少需要 8 個字元'; return; }
       this.authLoading = true;
       try {
-        const res = await fetch('/api/register', {
+        const res = await fetch(API_BASE + '/api/register', {
           method: 'POST',
           headers: {'Content-Type':'application/json'},
           body: JSON.stringify({ nickname: this.regForm.nickname, password: this.regForm.password })
@@ -948,7 +951,7 @@ function cyberlearn() {
       this.bindEmailMsg = '';
       this.bindEmailErr = false;
       try {
-        const res = await fetch('/api/bind_email', {
+        const res = await fetch(API_BASE + '/api/bind_email', {
           method: 'POST',
           headers: {'Content-Type':'application/json'},
           body: JSON.stringify({ user_id: this.user.id, email: this.bindEmailInput.trim() })
@@ -973,7 +976,7 @@ function cyberlearn() {
       this.authLoading = true;
       this.authError = '';
       try {
-        const res = await fetch('/api/forgot_password', {
+        const res = await fetch(API_BASE + '/api/forgot_password', {
           method: 'POST',
           headers: {'Content-Type':'application/json'},
           body: JSON.stringify({ email: this.forgotEmail.trim() })
@@ -993,7 +996,7 @@ function cyberlearn() {
       this.authLoading = true;
       this.authError = '';
       try {
-        const res = await fetch('/api/reset_password', {
+        const res = await fetch(API_BASE + '/api/reset_password', {
           method: 'POST',
           headers: {'Content-Type':'application/json'},
           body: JSON.stringify({ email: this.forgotEmail.trim(), code: this.forgotCode.trim(), new_password: this.forgotNewPw })
@@ -1017,7 +1020,7 @@ function cyberlearn() {
     // ── Lessons ──
     async loadLessons() {
       try {
-        const res = await fetch('/api/lessons');
+        const res = await fetch(API_BASE + '/api/lessons');
         const data = await res.json();
         this.lessons = data;
       } catch(e) {
@@ -1109,7 +1112,7 @@ function cyberlearn() {
       this.$nextTick(() => this.scrollChat());
 
       try {
-        const res = await fetch('/api/chat', {
+        const res = await fetch(API_BASE + '/api/chat', {
           method: 'POST',
           headers: {'Content-Type':'application/json'},
           body: JSON.stringify({
@@ -1182,7 +1185,7 @@ function cyberlearn() {
     // ── Quiz ──
     async startQuiz() {
       try {
-        const res = await fetch(`/api/questions/${this.currentLesson.id}?user_id=${this.user.id}`);
+        const res = await fetch(API_BASE + `/api/questions/${this.currentLesson.id}?user_id=${this.user.id}`);
         const data = await res.json();
         this.quizQuestions = data.questions;
       } catch(e) {
@@ -1204,7 +1207,7 @@ function cyberlearn() {
       const startTime = Date.now();
 
       try {
-        const res = await fetch('/api/answer', {
+        const res = await fetch(API_BASE + '/api/answer', {
           method: 'POST',
           headers: {'Content-Type':'application/json'},
           body: JSON.stringify({
@@ -1236,7 +1239,7 @@ function cyberlearn() {
 
     async completeLesson() {
       try {
-        const res = await fetch('/api/complete_lesson', {
+        const res = await fetch(API_BASE + '/api/complete_lesson', {
           method: 'POST',
           headers: {'Content-Type':'application/json'},
           body: JSON.stringify({ user_id: this.user.id, lesson_id: this.currentLesson.id })
