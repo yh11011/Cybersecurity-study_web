@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CyberLearn — AI 資安學習平台</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg: #0a0e17;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --border: #1e3a5f;
+    --accent: #00d4ff;
+    --accent2: #7c3aed;
+    --accent3: #10b981;
+    --danger: #ef4444;
+    --warn: #f59e0b;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --glow: 0 0 20px rgba(0, 212, 255, 0.3);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans TC', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Animated BG ── */
+  .bg-grid {
+    position: fixed; inset: 0; z-index: 0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+  }
+  .bg-glow {
+    position: fixed; top: -200px; left: 50%; transform: translateX(-50%);
+    width: 800px; height: 400px;
+    background: radial-gradient(ellipse, rgba(0,212,255,0.08) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+
+  /* ── Typography ── */
+  .mono { font-family: 'Space Mono', monospace; }
+  .headline { font-weight: 900; letter-spacing: -0.02em; }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+  }
+  .card-glow {
+    box-shadow: 0 0 30px rgba(0,212,255,0.1), inset 0 1px 0 rgba(255,255,255,0.05);
+  }
+
+  /* ── Buttons ── */
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), #0099cc);
+    color: #000;
+    font-weight: 700;
+    border-radius: 10px;
+    padding: 12px 28px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 0 20px rgba(0,212,255,0.4);
+    border: none;
+    font-family: 'Noto Sans TC', sans-serif;
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 0 30px rgba(0,212,255,0.6); }
+  .btn-primary:active { transform: translateY(0); }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    border-radius: 10px;
+    padding: 10px 24px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-weight: 500;
+  }
+  .btn-secondary:hover { background: rgba(0,212,255,0.1); }
+
+  .btn-danger {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    font-weight: 700;
+    border-radius: 10px;
+    padding: 10px 24px;
+    cursor: pointer;
+    border: none;
+    font-family: 'Noto Sans TC', sans-serif;
+  }
+
+  /* ── Input ── */
+  .input-field {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    color: var(--text);
+    width: 100%;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 15px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+  }
+  .input-field:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0,212,255,0.15);
+  }
+
+  /* ── Chat ── */
+  .chat-bubble-ai {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 16px 16px 16px 4px;
+    padding: 14px 18px;
+    max-width: 85%;
+    line-height: 1.7;
+    animation: fadeSlideIn 0.3s ease;
+  }
+  .chat-bubble-user {
+    background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(124,58,237,0.15));
+    border: 1px solid rgba(0,212,255,0.3);
+    border-radius: 16px 16px 4px 16px;
+    padding: 14px 18px;
+    max-width: 85%;
+    line-height: 1.7;
+    animation: fadeSlideIn 0.3s ease;
+    align-self: flex-end;
+  }
+
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Typing indicator ── */
+  .typing-dot {
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: typingBounce 1.2s infinite;
+  }
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes typingBounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+    30% { transform: translateY(-8px); opacity: 1; }
+  }
+
+  /* ── Progress bar ── */
+  .progress-bar {
+    height: 4px;
+    background: var(--surface2);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  /* ── Lesson card ── */
+  .lesson-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+  .lesson-card:hover:not(.locked) {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0,212,255,0.15);
+  }
+  .lesson-card.locked {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .lesson-card.completed {
+    border-color: var(--accent3);
+    background: linear-gradient(135deg, var(--surface), rgba(16,185,129,0.05));
+  }
+
+  /* ── Quiz option ── */
+  .quiz-option {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+    width: 100%;
+    color: var(--text);
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 15px;
+  }
+  .quiz-option:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: rgba(0,212,255,0.08);
+  }
+  .quiz-option.correct { border-color: var(--accent3); background: rgba(16,185,129,0.1); }
+  .quiz-option.wrong { border-color: var(--danger); background: rgba(239,68,68,0.1); }
+  .quiz-option:disabled { cursor: default; }
+
+  /* ── Badge popup ── */
+  .badge-popup {
+    animation: badgePop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes badgePop {
+    from { opacity: 0; transform: scale(0.5) rotate(-10deg); }
+    to { opacity: 1; transform: scale(1) rotate(0deg); }
+  }
+
+  /* ── Password strength ── */
+  .pw-strength-bar { height: 6px; border-radius: 99px; transition: all 0.3s; }
+
+  /* ── Fake alert (trap) ── */
+  .trap-alert {
+    animation: trapSlide 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 100;
+  }
+  @keyframes trapSlide {
+    from { opacity: 0; transform: translateY(-20px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+
+  /* ── XP pill ── */
+  .xp-pill {
+    background: linear-gradient(135deg, rgba(0,212,255,0.2), rgba(124,58,237,0.2));
+    border: 1px solid rgba(0,212,255,0.4);
+    border-radius: 99px;
+    padding: 4px 14px;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+  }
+
+  /* ── View transitions ── */
+  [x-show] { transition: opacity 0.2s; }
+
+  /* ── Stars (decoration) ── */
+  .star {
+    position: fixed;
+    width: 2px; height: 2px;
+    background: rgba(0,212,255,0.6);
+    border-radius: 50%;
+    animation: twinkle 3s infinite;
+  }
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+  }
+</style>
+</head>
+
+<body x-data="cyberlearn()" x-init="init()">
+<!-- Background -->
+<div class="bg-grid"></div>
+<div class="bg-glow"></div>
+
+<!-- Decorative stars -->
+<div class="star" style="top:15%;left:10%;animation-delay:0s;"></div>
+<div class="star" style="top:40%;left:90%;animation-delay:1s;"></div>
+<div class="star" style="top:70%;left:5%;animation-delay:2s;"></div>
+<div class="star" style="top:25%;left:80%;animation-delay:0.5s;"></div>
+<div class="star" style="top:85%;left:60%;animation-delay:1.5s;"></div>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<!--  AUTH VIEW                                                         -->
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<div x-show="view === 'auth'" class="relative z-10 min-h-screen flex items-center justify-center p-4">
+  <div class="w-full max-w-md">
+    <!-- Logo -->
+    <div class="text-center mb-10">
+      <div class="mono text-5xl font-bold mb-2" style="color:var(--accent); text-shadow: var(--glow);">
+        CyberLearn
+      </div>
+      <div class="text-sm" style="color:var(--muted);">AI 驅動防禦型資安學習平台</div>
+    </div>
+
+    <!-- Auth card -->
+    <div class="card card-glow p-8">
+      <!-- Tabs -->
+      <div class="flex mb-8 gap-2">
+        <button @click="authTab='login'"
+          :class="authTab==='login' ? 'btn-primary flex-1' : 'btn-secondary flex-1'"
+          class="text-sm">登入</button>
+        <button @click="authTab='register'"
+          :class="authTab==='register' ? 'btn-primary flex-1' : 'btn-secondary flex-1'"
+          class="text-sm">註冊</button>
+      </div>
+
+      <!-- Login -->
+      <div x-show="authTab==='login'" class="space-y-4">
+        <div>
+          <label class="block text-sm mb-2" style="color:var(--muted);">暱稱</label>
+          <input class="input-field" type="text" x-model="loginForm.nickname" placeholder="你的暱稱"
+            @keyup.enter="doLogin()"/>
+        </div>
+        <div>
+          <label class="block text-sm mb-2" style="color:var(--muted);">密碼</label>
+          <input class="input-field" type="password" x-model="loginForm.password" placeholder="••••••••"
+            @keyup.enter="doLogin()"/>
+        </div>
+        <template x-if="authError">
+          <div class="text-sm px-4 py-3 rounded-lg" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;" x-text="authError"></div>
+        </template>
+        <button class="btn-primary w-full mt-2" @click="doLogin()" :disabled="authLoading">
+          <span x-text="authLoading ? '登入中...' : '進入平台'"></span>
+        </button>
+      </div>
+
+      <!-- Register -->
+      <div x-show="authTab==='register'" class="space-y-4">
+        <div>
+          <label class="block text-sm mb-2" style="color:var(--muted);">暱稱（2–20 字元）</label>
+          <input class="input-field" type="text" x-model="regForm.nickname" placeholder="幫自己取個代號"
+            @keyup.enter="doRegister()"/>
+        </div>
+        <div>
+          <label class="block text-sm mb-2" style="color:var(--muted);">密碼（至少 8 字元）</label>
+          <input class="input-field" type="password" x-model="regForm.password"
+            placeholder="••••••••" @input="checkPasswordStrength()"
+            @keyup.enter="doRegister()"/>
+          <!-- Fake strength meter (陷阱！) -->
+          <div x-show="regForm.password.length > 0" class="mt-2">
+            <div class="flex justify-between text-xs mb-1">
+              <span style="color:var(--muted);">密碼強度</span>
+              <span :style="`color:${trapStrengthColor}`" x-text="trapStrengthLabel" class="font-bold"></span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" :style="`width:${trapStrengthPct}%;background:${trapStrengthColor}`"></div>
+            </div>
+            <!-- Fake "強" label even for weak passwords -->
+            <div x-show="regForm.password.length >= 6" class="text-xs mt-1" style="color:var(--muted);">
+              ✓ 密碼符合安全要求 <!-- This is the TRAP - false reassurance -->
+            </div>
+          </div>
+        </div>
+        <template x-if="authError">
+          <div class="text-sm px-4 py-3 rounded-lg" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;" x-text="authError"></div>
+        </template>
+        <button class="btn-primary w-full mt-2" @click="doRegister()" :disabled="authLoading">
+          <span x-text="authLoading ? '建立中...' : '建立帳號'"></span>
+        </button>
+      </div>
+    </div>
+
+    <div class="text-center mt-6 text-xs" style="color:var(--muted);">
+      🔒 密碼以 Argon2id 加密儲存 · 無 email 要求 · 完全匿名
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<!--  MAP VIEW (學習地圖)                                               -->
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<div x-show="view === 'map'" class="relative z-10 min-h-screen">
+  <!-- Nav -->
+  <nav class="sticky top-0 z-50 backdrop-blur-xl border-b" style="background:rgba(10,14,23,0.9);border-color:var(--border);">
+    <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="mono font-bold" style="color:var(--accent);">CyberLearn</div>
+      <div class="flex items-center gap-4">
+        <div class="xp-pill" x-text="`⚡ ${user.xp} XP`"></div>
+        <div class="text-sm" style="color:var(--muted);">
+          Lv.<span class="font-bold" style="color:var(--text);" x-text="user.level"></span>
+          · <span x-text="user.nickname"></span>
+        </div>
+        <button class="btn-secondary text-xs py-1 px-3" @click="logout()">登出</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="max-w-4xl mx-auto px-4 py-10">
+    <!-- Header -->
+    <div class="mb-10">
+      <div class="text-4xl headline mb-2">學習地圖 🗺️</div>
+      <div style="color:var(--muted);">完成每一關，解鎖下一個資安知識節點</div>
+    </div>
+
+    <!-- Overall progress -->
+    <div class="card p-5 mb-8">
+      <div class="flex justify-between text-sm mb-3">
+        <span style="color:var(--muted);">整體進度</span>
+        <span class="mono" style="color:var(--accent);" x-text="`${user.completed_lessons?.length || 0} / 5 關`"></span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" :style="`width:${((user.completed_lessons?.length || 0) / 5) * 100}%`"></div>
+      </div>
+    </div>
+
+    <!-- Lesson cards -->
+    <div class="space-y-4">
+      <template x-for="lesson in lessons" :key="lesson.id">
+        <div class="lesson-card"
+          :class="{
+            locked: lesson.locked && !user.completed_lessons?.includes(getPrevLesson(lesson.id)),
+            completed: user.completed_lessons?.includes(lesson.id)
+          }"
+          @click="enterLesson(lesson)">
+          <div class="flex items-center gap-4">
+            <div class="text-4xl flex-shrink-0" x-text="lesson.emoji"></div>
+            <div class="flex-1">
+              <div class="flex items-center gap-3 mb-1">
+                <div class="font-bold text-lg" x-text="lesson.title"></div>
+                <template x-if="user.completed_lessons?.includes(lesson.id)">
+                  <span class="text-xs px-2 py-0.5 rounded-full font-bold mono"
+                    style="background:rgba(16,185,129,0.2);color:#10b981;border:1px solid rgba(16,185,129,0.4);">
+                    ✓ 完成
+                  </span>
+                </template>
+                <template x-if="lesson.locked && !isUnlocked(lesson.id)">
+                  <span class="text-xs px-2 py-0.5 rounded-full mono"
+                    style="background:rgba(100,116,139,0.2);color:var(--muted);border:1px solid rgba(100,116,139,0.3);">
+                    🔒 鎖定
+                  </span>
+                </template>
+              </div>
+              <div class="text-sm" style="color:var(--muted);" x-text="lesson.subtitle"></div>
+            </div>
+            <div class="text-right flex-shrink-0">
+              <div class="text-sm mono" style="color:var(--accent);" x-text="`+${lesson.xp} XP`"></div>
+            </div>
+          </div>
+        </div>
+      </template>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<!--  LESSON VIEW (關卡)                                                -->
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<div x-show="view === 'lesson'" class="relative z-10 min-h-screen">
+  <!-- Nav -->
+  <nav class="sticky top-0 z-50 backdrop-blur-xl border-b" style="background:rgba(10,14,23,0.9);border-color:var(--border);">
+    <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
+      <button class="btn-secondary text-sm py-1.5 px-3" @click="exitLesson()">← 返回地圖</button>
+      <div class="font-bold" x-text="currentLesson?.title"></div>
+      <div class="xp-pill text-xs" x-text="`⚡ ${user.xp} XP`"></div>
+    </div>
+  </nav>
+
+  <!-- ── TRAP PHASE ── -->
+  <div x-show="lessonPhase === 'trap'" class="max-w-3xl mx-auto px-4 py-10">
+    <!-- Lesson 1 Trap: Password registration with fake strength meter -->
+    <template x-if="currentLesson?.id === 'password_strength'">
+      <div>
+        <div class="card card-glow p-8 mb-6">
+          <div class="text-2xl font-bold mb-2">建立你的 CyberLearn 帳號設定</div>
+          <div class="text-sm mb-6" style="color:var(--muted);">請為你的學習帳號設定安全密碼</div>
+
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm mb-2" style="color:var(--muted);">電子信箱</label>
+              <input class="input-field" type="email" value="user@example.com" disabled style="opacity:0.5;"/>
+            </div>
+            <div>
+              <label class="block text-sm mb-2" style="color:var(--muted);">新密碼</label>
+              <input class="input-field" type="password" x-model="trapPassword"
+                @input="updateTrapMeter()" placeholder="輸入你的密碼試試看"/>
+              <!-- The TRAP: fake strength meter -->
+              <div x-show="trapPassword.length > 0" class="mt-3">
+                <div class="flex justify-between text-xs mb-1.5">
+                  <span style="color:var(--muted);">密碼強度</span>
+                  <span :style="`color:${trapMeterColor}`" class="font-bold" x-text="trapMeterLabel"></span>
+                </div>
+                <div class="progress-bar">
+                  <div class="pw-strength-bar" :style="`width:${trapMeterPct}%;background:${trapMeterColor}`"></div>
+                </div>
+              </div>
+            </div>
+            <button class="btn-primary w-full mt-2" @click="triggerTrap()"
+              :disabled="trapPassword.length < 4">
+              確認設定
+            </button>
+          </div>
+        </div>
+
+        <!-- Hint to interact -->
+        <div class="text-center text-sm" style="color:var(--muted);">
+          試試看輸入你常用的密碼類型（例如：貓咪名+生日）
+        </div>
+      </div>
+    </template>
+  </div>
+
+  <!-- ── TRAP REVEAL PHASE ── -->
+  <div x-show="lessonPhase === 'trap_reveal'" class="max-w-3xl mx-auto px-4 py-10">
+    <div class="trap-alert card p-8 text-center mb-6" style="border-color:var(--warn);background:linear-gradient(135deg,rgba(245,158,11,0.1),rgba(239,68,68,0.05));">
+      <div class="text-5xl mb-4">⚠️</div>
+      <div class="text-xl font-bold mb-3" style="color:var(--warn);">等等，讓阿安說實話</div>
+      <div class="text-base mb-4" style="line-height:1.8;">
+        你剛才輸入的密碼「<span class="mono font-bold" style="color:var(--danger);" x-text="trapPassword"></span>」，
+        系統顯示它很「強」——
+        <strong style="color:var(--warn);">但這其實是個陷阱！</strong>
+      </div>
+      <div class="text-sm" style="color:var(--muted);">
+        現實世界中，很多密碼強度計只看長度和特殊符號，根本不管你的密碼有沒有意義。
+        駭客的字典裡就有成千上萬種「看起來複雜但其實有規律」的密碼組合。
+      </div>
+    </div>
+    <div class="text-center">
+      <button class="btn-primary px-8" @click="startChat()">
+        繼續：讓阿安教我 →
+      </button>
+    </div>
+  </div>
+
+  <!-- ── CHAT PHASE ── -->
+  <div x-show="lessonPhase === 'chat'" class="max-w-3xl mx-auto px-4 flex flex-col" style="height:calc(100vh - 60px);">
+    <!-- Chat header -->
+    <div class="py-4 border-b flex items-center gap-3" style="border-color:var(--border);">
+      <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm mono"
+        style="background:linear-gradient(135deg,var(--accent),var(--accent2));color:#000;">阿安</div>
+      <div>
+        <div class="font-bold">阿安</div>
+        <div class="text-xs" style="color:var(--accent);">● 在線中</div>
+      </div>
+      <div class="ml-auto">
+        <div class="text-xs px-3 py-1 rounded-full mono" style="background:var(--surface2);color:var(--muted);">
+          對話 <span x-text="chatTurns"></span>/5 輪
+        </div>
+      </div>
+    </div>
+
+    <!-- Messages -->
+    <div class="flex-1 overflow-y-auto py-6 space-y-4" id="chatMessages" x-ref="chatMessages">
+      <template x-for="(msg, idx) in chatMessages" :key="idx">
+        <div class="flex" :class="msg.role === 'user' ? 'justify-end' : 'justify-start'">
+          <template x-if="msg.role === 'assistant'">
+            <div class="flex gap-3 max-w-[85%]">
+              <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-1 mono"
+                style="background:linear-gradient(135deg,var(--accent),var(--accent2));color:#000;">安</div>
+              <div class="chat-bubble-ai text-sm" x-text="msg.content"></div>
+            </div>
+          </template>
+          <template x-if="msg.role === 'user'">
+            <div class="chat-bubble-user text-sm" x-text="msg.content"></div>
+          </template>
+        </div>
+      </template>
+
+      <!-- Typing indicator -->
+      <div x-show="isTyping" class="flex gap-3">
+        <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold mono"
+          style="background:linear-gradient(135deg,var(--accent),var(--accent2));color:#000;">安</div>
+        <div class="chat-bubble-ai flex items-center gap-2">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <span class="text-xs ml-1" style="color:var(--muted);">阿安正在思考中⋯</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Input -->
+    <div class="py-4 border-t" style="border-color:var(--border);">
+      <template x-if="chatTurns >= 5">
+        <div class="text-center">
+          <div class="text-sm mb-3" style="color:var(--muted);">對話結束！準備好測試你的理解了嗎？</div>
+          <button class="btn-primary px-8" @click="startQuiz()">開始測驗 →</button>
+        </div>
+      </template>
+      <template x-if="chatTurns < 5">
+        <div class="flex gap-3">
+          <input class="input-field text-sm" type="text" x-model="chatInput"
+            placeholder="跟阿安聊聊... (最多 500 字)"
+            @keyup.enter="sendChat()" maxlength="500"
+            :disabled="isTyping"/>
+          <button class="btn-primary flex-shrink-0 px-5" @click="sendChat()" :disabled="isTyping || !chatInput.trim()">送出</button>
+        </div>
+        <div class="flex justify-between mt-2">
+          <div class="text-xs" style="color:var(--muted);" x-text="`${chatInput.length}/500`"></div>
+          <button class="text-xs underline" style="color:var(--muted);" @click="skipToQuiz()">跳過對話，直接測驗</button>
+        </div>
+      </template>
+    </div>
+  </div>
+
+  <!-- ── QUIZ PHASE ── -->
+  <div x-show="lessonPhase === 'quiz'" class="max-w-3xl mx-auto px-4 py-8">
+    <div class="card card-glow p-6 mb-6">
+      <div class="flex justify-between items-center mb-6">
+        <div class="font-bold text-lg">小測驗 📝</div>
+        <div class="text-sm mono" style="color:var(--muted);">
+          <span x-text="currentQuestionIdx + 1"></span> / <span x-text="quizQuestions.length"></span>
+        </div>
+      </div>
+
+      <!-- Progress -->
+      <div class="progress-bar mb-6">
+        <div class="progress-fill" :style="`width:${((currentQuestionIdx) / quizQuestions.length) * 100}%`"></div>
+      </div>
+
+      <!-- Question -->
+      <template x-if="quizQuestions[currentQuestionIdx]">
+        <div>
+          <div class="text-base font-medium mb-6 leading-relaxed"
+            x-text="quizQuestions[currentQuestionIdx].question"></div>
+
+          <!-- Options -->
+          <div class="space-y-3 mb-6">
+            <template x-for="(opt, oi) in quizQuestions[currentQuestionIdx].options" :key="oi">
+              <button class="quiz-option"
+                :class="{
+                  correct: quizAnswered && opt.charAt(0) === quizQuestions[currentQuestionIdx].answer,
+                  wrong: quizAnswered && selectedAnswer === opt.charAt(0) && opt.charAt(0) !== quizQuestions[currentQuestionIdx].answer
+                }"
+                @click="submitAnswer(opt.charAt(0))"
+                :disabled="quizAnswered">
+                <span x-text="opt"></span>
+              </button>
+            </template>
+          </div>
+
+          <!-- Explanation -->
+          <div x-show="quizAnswered" class="rounded-xl p-4 mb-4 text-sm"
+            :style="lastAnswerCorrect
+              ? 'background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.4);'
+              : 'background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.4);'">
+            <div class="font-bold mb-2" :style="lastAnswerCorrect ? 'color:#10b981' : 'color:#f87171'">
+              <span x-text="lastAnswerCorrect ? '✓ 答對了！' : '✗ 答錯了'"></span>
+            </div>
+            <div style="line-height:1.7" x-text="quizQuestions[currentQuestionIdx].explanation"></div>
+          </div>
+
+          <!-- Next button -->
+          <div x-show="quizAnswered" class="text-right">
+            <button class="btn-primary px-6" @click="nextQuestion()">
+              <span x-text="currentQuestionIdx < quizQuestions.length - 1 ? '下一題 →' : '完成測驗 ✓'"></span>
+            </button>
+          </div>
+        </div>
+      </template>
+    </div>
+  </div>
+
+  <!-- ── COMPLETE PHASE ── -->
+  <div x-show="lessonPhase === 'complete'" class="max-w-3xl mx-auto px-4 py-16 text-center">
+    <!-- Badge -->
+    <div class="badge-popup text-8xl mb-6" x-text="currentLesson?.badge?.split(' ')[0] || '🏅'"></div>
+    <div class="text-3xl headline mb-3">
+      <span x-text="currentLesson?.badge"></span>
+    </div>
+    <div class="text-lg mb-8" style="color:var(--muted);">
+      你完成了「<span x-text="currentLesson?.title"></span>」關卡！
+    </div>
+
+    <!-- Score card -->
+    <div class="card p-6 mb-8 max-w-sm mx-auto">
+      <div class="flex justify-around">
+        <div>
+          <div class="text-3xl font-bold mono" style="color:var(--accent);" x-text="`${quizScore}/${quizQuestions.length}`"></div>
+          <div class="text-xs mt-1" style="color:var(--muted);">答對題數</div>
+        </div>
+        <div style="width:1px;background:var(--border)"></div>
+        <div>
+          <div class="text-3xl font-bold mono" style="color:#10b981;" x-text="`+${completionXP}`"></div>
+          <div class="text-xs mt-1" style="color:var(--muted);">獲得 XP</div>
+        </div>
+      </div>
+    </div>
+
+    <div x-show="quizScore === quizQuestions.length" class="mb-6 text-sm" style="color:var(--accent3);">
+      🎯 全部答對！太厲害了！
+    </div>
+    <div x-show="quizScore < quizQuestions.length && quizScore > 0" class="mb-6 text-sm" style="color:var(--warn);">
+      繼續練習，下次一定能全對！
+    </div>
+
+    <button class="btn-primary px-10 text-lg" @click="exitLesson()">
+      返回學習地圖 →
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<!--  ALPINE.JS APP                                                     -->
+<!-- ══════════════════════════════════════════════════════════════════ -->
+<script>
+function cyberlearn() {
+  return {
+    // ── State ──
+    view: 'auth',  // auth | map | lesson
+    authTab: 'register',
+    authLoading: false,
+    authError: '',
+
+    // Auth forms
+    loginForm: { nickname: '', password: '' },
+    regForm: { nickname: '', password: '' },
+
+    // Fake strength meter for registration (trap!)
+    trapStrengthPct: 0,
+    trapStrengthLabel: '',
+    trapStrengthColor: '',
+
+    // User
+    user: { id: null, nickname: '', xp: 0, level: 1, completed_lessons: [] },
+
+    // Lessons
+    lessons: [],
+
+    // Current lesson
+    currentLesson: null,
+    lessonPhase: 'trap',  // trap | trap_reveal | chat | quiz | complete
+
+    // Trap
+    trapPassword: '',
+    trapMeterPct: 0,
+    trapMeterLabel: '',
+    trapMeterColor: '',
+
+    // Chat
+    chatMessages: [],
+    chatInput: '',
+    chatTurns: 0,
+    isTyping: false,
+    sessionId: '',
+
+    // Quiz
+    quizQuestions: [],
+    currentQuestionIdx: 0,
+    selectedAnswer: '',
+    quizAnswered: false,
+    lastAnswerCorrect: false,
+    quizScore: 0,
+    completionXP: 0,
+
+    // ── Init ──
+    async init() {
+      this.sessionId = crypto.randomUUID();
+      const saved = localStorage.getItem('cyberlearn_user');
+      if (saved) {
+        try {
+          this.user = JSON.parse(saved);
+          await this.loadLessons();
+          this.view = 'map';
+        } catch(e) {
+          localStorage.removeItem('cyberlearn_user');
+        }
+      }
+    },
+
+    // ── Auth ──
+    async doLogin() {
+      this.authError = '';
+      this.authLoading = true;
+      try {
+        const res = await fetch('/api/login', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify(this.loginForm)
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || '登入失敗');
+        this.user = { id: data.user_id, nickname: data.nickname, xp: data.xp, level: data.level, completed_lessons: data.completed_lessons || [] };
+        localStorage.setItem('cyberlearn_user', JSON.stringify(this.user));
+        await this.loadLessons();
+        this.view = 'map';
+      } catch(e) {
+        this.authError = e.message;
+      } finally {
+        this.authLoading = false;
+      }
+    },
+
+    async doRegister() {
+      this.authError = '';
+      if (this.regForm.nickname.length < 2) { this.authError = '暱稱至少需要 2 個字元'; return; }
+      if (this.regForm.password.length < 8) { this.authError = '密碼至少需要 8 個字元'; return; }
+      this.authLoading = true;
+      try {
+        const res = await fetch('/api/register', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ nickname: this.regForm.nickname, password: this.regForm.password })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || '註冊失敗');
+        this.user = { id: data.user_id, nickname: data.nickname, xp: 0, level: 1, completed_lessons: [] };
+        localStorage.setItem('cyberlearn_user', JSON.stringify(this.user));
+        await this.loadLessons();
+        this.view = 'map';
+      } catch(e) {
+        this.authError = e.message;
+      } finally {
+        this.authLoading = false;
+      }
+    },
+
+    // Fake password strength meter for the registration form
+    checkPasswordStrength() {
+      const pw = this.regForm.password;
+      // INTENTIONALLY misleading - shows "強" for weak passwords with personal info patterns
+      if (pw.length === 0) { this.trapStrengthPct = 0; return; }
+      if (pw.length < 6) {
+        this.trapStrengthPct = 30; this.trapStrengthLabel = '弱'; this.trapStrengthColor = '#ef4444';
+      } else if (pw.length < 10) {
+        // Fake: show 強 even if it's something like "Cat2005"
+        this.trapStrengthPct = 85; this.trapStrengthLabel = '強'; this.trapStrengthColor = '#10b981';
+      } else {
+        this.trapStrengthPct = 100; this.trapStrengthLabel = '非常強'; this.trapStrengthColor = '#10b981';
+      }
+    },
+
+    logout() {
+      localStorage.removeItem('cyberlearn_user');
+      this.user = { id: null, nickname: '', xp: 0, level: 1, completed_lessons: [] };
+      this.view = 'auth';
+    },
+
+    // ── Lessons ──
+    async loadLessons() {
+      try {
+        const res = await fetch('/api/lessons');
+        const data = await res.json();
+        this.lessons = data;
+      } catch(e) {
+        console.error(e);
+      }
+    },
+
+    isUnlocked(lessonId) {
+      const ids = ['password_strength','phishing','social_engineering','public_wifi','two_factor'];
+      const idx = ids.indexOf(lessonId);
+      if (idx === 0) return true;
+      return this.user.completed_lessons?.includes(ids[idx - 1]) || false;
+    },
+
+    getPrevLesson(lessonId) {
+      const ids = ['password_strength','phishing','social_engineering','public_wifi','two_factor'];
+      const idx = ids.indexOf(lessonId);
+      return idx > 0 ? ids[idx - 1] : null;
+    },
+
+    enterLesson(lesson) {
+      if (lesson.locked && !this.isUnlocked(lesson.id)) {
+        alert('請先完成前一個關卡才能解鎖！');
+        return;
+      }
+      this.currentLesson = lesson;
+      this.lessonPhase = 'trap';
+      this.trapPassword = '';
+      this.trapMeterPct = 0;
+      this.chatMessages = [];
+      this.chatInput = '';
+      this.chatTurns = 0;
+      this.quizQuestions = [];
+      this.currentQuestionIdx = 0;
+      this.quizScore = 0;
+      this.view = 'lesson';
+    },
+
+    exitLesson() {
+      this.view = 'map';
+      this.currentLesson = null;
+    },
+
+    // ── Trap ──
+    updateTrapMeter() {
+      const pw = this.trapPassword;
+      if (!pw) { this.trapMeterPct = 0; return; }
+      // INTENTIONAL TRAP: always shows strong for passwords >= 6 chars
+      if (pw.length < 4) {
+        this.trapMeterPct = 25; this.trapMeterLabel = '太弱'; this.trapMeterColor = '#ef4444';
+      } else if (pw.length < 6) {
+        this.trapMeterPct = 50; this.trapMeterLabel = '尚可'; this.trapMeterColor = '#f59e0b';
+      } else {
+        // Even weak passwords like "cat2005" show as 強 - THIS IS THE TRAP
+        this.trapMeterPct = 90; this.trapMeterLabel = '強 ✓'; this.trapMeterColor = '#10b981';
+      }
+    },
+
+    async triggerTrap() {
+      if (!this.trapPassword || this.trapPassword.length < 4) return;
+      // Reveal the trap
+      this.lessonPhase = 'trap_reveal';
+    },
+
+    // ── Chat ──
+    async startChat() {
+      this.lessonPhase = 'chat';
+      // Initial message from AI
+      await this.sendAiOpener();
+    },
+
+    async sendAiOpener() {
+      const openers = {
+        password_strength: `嘿！我是阿安 👋 剛才那個密碼強度計，其實在騙你喔！\n\n你輸入「${this.trapPassword}」，它顯示「強」——但我 3 秒就能猜到這種密碼，你信嗎？\n\n讓我告訴你：什麼樣的密碼才是真正讓駭客頭痛的？你覺得是什麼？`
+      };
+      const msg = openers[this.currentLesson?.id] || '嗨！我是阿安，讓我們一起學習資安吧！';
+      this.chatMessages.push({ role: 'assistant', content: msg });
+      this.chatTurns = 0;
+      this.$nextTick(() => this.scrollChat());
+    },
+
+    async sendChat() {
+      const msg = this.chatInput.trim();
+      if (!msg || this.isTyping) return;
+      this.chatInput = '';
+      this.chatMessages.push({ role: 'user', content: msg });
+      this.chatTurns++;
+      this.isTyping = true;
+      this.$nextTick(() => this.scrollChat());
+
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({
+            session_id: this.sessionId,
+            user_id: this.user.id,
+            lesson_id: this.currentLesson.id,
+            messages: this.chatMessages.slice(0, -1),
+            user_message: msg
+          })
+        });
+
+        if (res.headers.get('content-type')?.includes('text/event-stream')) {
+          // Streaming response
+          const reader = res.body.getReader();
+          const decoder = new TextDecoder();
+          let aiMsg = { role: 'assistant', content: '' };
+          this.chatMessages.push(aiMsg);
+          this.isTyping = false;
+
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            const lines = decoder.decode(value).split('\n');
+            for (const line of lines) {
+              if (line.startsWith('data: ')) {
+                try {
+                  const data = JSON.parse(line.slice(6));
+                  if (data.chunk) {
+                    aiMsg.content += data.chunk;
+                    // Alpine reactivity trick
+                    this.chatMessages = [...this.chatMessages];
+                    this.$nextTick(() => this.scrollChat());
+                  }
+                  if (data.done && data.full) {
+                    aiMsg.content = data.full;
+                    this.chatMessages = [...this.chatMessages];
+                  }
+                  if (data.error) {
+                    aiMsg.content = data.error;
+                    this.chatMessages = [...this.chatMessages];
+                  }
+                } catch(e) {}
+              }
+            }
+          }
+        } else {
+          const data = await res.json();
+          this.chatMessages.push({ role: 'assistant', content: data.response || '阿安有點累了，稍後再試 😅' });
+          this.isTyping = false;
+        }
+      } catch(e) {
+        this.chatMessages.push({ role: 'assistant', content: '阿安現在有點忙，請稍後再試 😅' });
+        this.isTyping = false;
+      }
+      this.$nextTick(() => this.scrollChat());
+    },
+
+    scrollChat() {
+      const el = document.getElementById('chatMessages');
+      if (el) el.scrollTop = el.scrollHeight;
+    },
+
+    skipToQuiz() {
+      if (this.chatMessages.length === 0) {
+        this.chatMessages.push({ role: 'assistant', content: '好，直接來測驗！準備好了嗎？' });
+      }
+      this.startQuiz();
+    },
+
+    // ── Quiz ──
+    async startQuiz() {
+      try {
+        const res = await fetch(`/api/questions/${this.currentLesson.id}?user_id=${this.user.id}`);
+        const data = await res.json();
+        this.quizQuestions = data.questions;
+      } catch(e) {
+        // Fallback questions if API fails
+        this.quizQuestions = [];
+      }
+      this.currentQuestionIdx = 0;
+      this.quizScore = 0;
+      this.quizAnswered = false;
+      this.lessonPhase = 'quiz';
+    },
+
+    async submitAnswer(answer) {
+      if (this.quizAnswered) return;
+      this.selectedAnswer = answer;
+      this.quizAnswered = true;
+
+      const q = this.quizQuestions[this.currentQuestionIdx];
+      const startTime = Date.now();
+
+      try {
+        const res = await fetch('/api/answer', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({
+            user_id: this.user.id,
+            question_id: q.id,
+            answer: answer,
+            time_spent: Math.floor((Date.now() - startTime) / 1000)
+          })
+        });
+        const data = await res.json();
+        this.lastAnswerCorrect = data.is_correct;
+        if (data.is_correct) this.quizScore++;
+      } catch(e) {
+        this.lastAnswerCorrect = answer === q.answer;
+        if (this.lastAnswerCorrect) this.quizScore++;
+      }
+    },
+
+    async nextQuestion() {
+      if (this.currentQuestionIdx < this.quizQuestions.length - 1) {
+        this.currentQuestionIdx++;
+        this.quizAnswered = false;
+        this.selectedAnswer = '';
+      } else {
+        // Complete the lesson
+        await this.completeLesson();
+      }
+    },
+
+    async completeLesson() {
+      try {
+        const res = await fetch('/api/complete_lesson', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ user_id: this.user.id, lesson_id: this.currentLesson.id })
+        });
+        const data = await res.json();
+        this.completionXP = data.xp_gained;
+        this.user.xp = data.xp;
+        this.user.level = data.level;
+        this.user.completed_lessons = data.completed_lessons;
+        localStorage.setItem('cyberlearn_user', JSON.stringify(this.user));
+      } catch(e) {
+        this.completionXP = 0;
+      }
+      this.lessonPhase = 'complete';
+    },
+  }
+}
+</script>
+</body>
+</html>

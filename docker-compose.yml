@@ -1,0 +1,7 @@
+services:
+  cyberlearn:
+    build: .
+    container_name: cyberlearn-web
+    ports:
+      - "${APP_PORT:-8000}:8000"
+    restart: unless-stopped
