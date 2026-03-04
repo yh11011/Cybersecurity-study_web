@@ -2,11 +2,12 @@ services:
   cyberlearn:
     build: .
     container_name: cyberlearn-web
-    ports:
-      - "${APP_PORT:-8000}:8000"
+    network_mode: host
     environment:
-      - AI_PROVIDER=${AI_PROVIDER:-github}
+      - AI_PROVIDER=${AI_PROVIDER:-ollama}
       - GITHUB_TOKEN=${GITHUB_TOKEN}
       - GITHUB_MODEL=${GITHUB_MODEL:-gpt-4.1}
-      - OLLAMA_MODEL=${OLLAMA_MODEL:-deepseek-r1:14b}
+      - OLLAMA_URL=${OLLAMA_URL:-http://127.0.0.1:11434/api/chat}
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-qwen2.5:3b}
+      - OLLAMA_STREAM_MODE=${OLLAMA_STREAM_MODE:-char}
     restart: unless-stopped

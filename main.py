@@ -21,9 +21,9 @@ import aiosqlite
 import httpx
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
-from fastapi import FastAPI, HTTPException, Request, Response
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, StreamingResponse
+from fastapi.responses import HTMLResponse, PlainTextResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -32,17 +32,18 @@ from pydantic import BaseModel
 DB_PATH = "cyberlearn.db"
 RATE_LIMIT_PER_MIN = 10  # AI calls per session per minute
 
-# AI Provider: "github" (GitHub Models GPT-4.1) or "ollama" (local)
-AI_PROVIDER = os.getenv("AI_PROVIDER", "github")
+# AI Provider
+AI_PROVIDER = os.getenv("AI_PROVIDER", "ollama")
 
 # GitHub Models (GPT-4.1)
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN", "")
 GITHUB_MODELS_URL = "https://models.inference.ai.azure.com/chat/completions"
 GITHUB_MODEL = os.getenv("GITHUB_MODEL", "gpt-4.1")
 
-# Ollama (local fallback)
-OLLAMA_URL = "http://localhost:11434/api/chat"
-OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "deepseek-r1:14b")
+# Ollama (local)
+OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434/api/chat")
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen2.5:3b")
+OLLAMA_STREAM_MODE = os.getenv("OLLAMA_STREAM_MODE", "char").lower()  # char | chunk
 
 # SMTP (Gmail) for password reset
 SMTP_EMAIL = os.getenv("SMTP_EMAIL", "h11.bot.vn@gmail.com")
@@ -54,7 +55,7 @@ ph = PasswordHasher()
 app = FastAPI(title="CyberLearn API")
 
 # CORS — 允許 GitHub Pages 前端跨域存取
-CORS_ORIGINS = os.getenv("CORS_ORIGINS", "https://yh11011.github.io").split(",")
+CORS_ORIGINS = os.getenv("CORS_ORIGINS", "https://cybersecurity.nex11.me,https://yh11011.github.io").split(",")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=CORS_ORIGINS,
@@ -586,10 +587,11 @@ async def chat(req: ChatRequest):
                             except json.JSONDecodeError:
                                 continue
             else:
-                # Ollama (local)
+                # Ollama (local, llama/qwen only)
+                selected_model = OLLAMA_MODEL if OLLAMA_MODEL.startswith(("qwen", "llama")) else "qwen2.5:3b"
                 async with httpx.AsyncClient(timeout=120.0) as client:
                     async with client.stream("POST", OLLAMA_URL, json={
-                        "model": OLLAMA_MODEL,
+                        "model": selected_model,
                         "messages": messages,
                         "stream": True,
                         "options": {"num_predict": 300, "temperature": 0.7}
@@ -602,7 +604,11 @@ async def chat(req: ChatRequest):
                                 chunk = data.get("message", {}).get("content", "")
                                 if chunk:
                                     full_text += chunk
-                                    yield f"data: {json.dumps({'chunk': chunk})}\n\n"
+                                    if OLLAMA_STREAM_MODE == "char":
+                                        for ch in chunk:
+                                            yield f"data: {json.dumps({'chunk': ch})}\n\n"
+                                    else:
+                                        yield f"data: {json.dumps({'chunk': chunk})}\n\n"
                                 if data.get("done"):
                                     masked = mask_code_blocks(full_text)
                                     yield f"data: {json.dumps({'done': True, 'full': masked})}\n\n"
@@ -754,6 +760,53 @@ async def complete_lesson(data: dict):
 async def root():
     with open("static/index.html", encoding="utf-8") as f:
         return f.read()
+
+@app.get("/robots.txt", response_class=PlainTextResponse)
+async def robots_txt(request: Request):
+    base = str(request.base_url).rstrip("/")
+    return "\n".join([
+        "User-agent: *",
+        "Allow: /",
+        "",
+        f"Sitemap: {base}/sitemap.xml",
+    ])
+
+@app.get("/sitemap.xml")
+async def sitemap_xml(request: Request):
+    base = str(request.base_url).rstrip("/")
+    now = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    xml = f"""<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>{base}/</loc>
+    <lastmod>{now}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>{base}/llms.txt</loc>
+    <lastmod>{now}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+</urlset>"""
+    return Response(content=xml, media_type="application/xml")
+
+@app.get("/llms.txt", response_class=PlainTextResponse)
+async def llms_txt(request: Request):
+    base = str(request.base_url).rstrip("/")
+    return "\n".join([
+        "# CyberLearn",
+        "",
+        "> AI 驅動的防禦型資安學習平台，提供關卡式互動學習與基礎資安觀念訓練。",
+        "",
+        "## URL",
+        f"- {base}/",
+        "",
+        "## Summary",
+        "- 內容涵蓋密碼強度、釣魚郵件、社交工程、公共 WiFi 與 2FA。",
+        "- 使用者可透過互動練習、測驗與 AI 對話完成學習關卡。",
+    ])
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 

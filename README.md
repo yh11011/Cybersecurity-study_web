@@ -110,6 +110,9 @@ RATE_LIMIT_PER_MIN = 10  # 每 session 每分鐘最多幾次 AI 呼叫
 | GET  | `/api/questions/{id}`   | 取得關卡題目             |
 | POST | `/api/answer`           | 提交答案 + 更新掌握分數  |
 | POST | `/api/complete_lesson`  | 完成關卡 + 發放 XP       |
+| GET  | `/robots.txt`           | 爬蟲規則與 sitemap 入口   |
+| GET  | `/sitemap.xml`          | 站點地圖（可發現首頁）    |
+| GET  | `/llms.txt`             | 提供 AI 可讀網站摘要      |
 
 ---
 
