@@ -1,8 +1,8 @@
 <div align="center">
 
-# 🛡️ CyberLearn — AI 驅動防禦型資安學習平台
+# 🛡️ CyberLearn — 防禦型資安學習平台
 
-### _用 AI 陪你學資安，從陷阱中學會真正的防禦_
+### _從陷阱中學會真正的防禦_
 
 [![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-cybersecurity.nex11.me-00d4aa?style=for-the-badge)](https://cybersecurity.nex11.me)
 [![GitHub Pages](https://img.shields.io/badge/📄_GitHub_Pages-yh11011.github.io-blue?style=for-the-badge)](https://yh11011.github.io)
@@ -14,8 +14,8 @@
 <br/>
 
 > **CyberLearn** 是一個以「情境陷阱」為核心的互動式資安教學平台。  
-> 學習者會先掉入精心設計的資安陷阱（如假密碼強度計），再透過 AI 導師「阿安」的引導，  
-> 從親身經歷中深刻理解資安威脅，並學會防禦技巧。
+> 學習者會先掉入精心設計的資安陷阱（如假密碼強度計），  
+> 再透過知識說明與題庫測驗，從親身經歷中深刻理解資安威脅並學會防禦技巧。
 
 </div>
 
@@ -26,11 +26,13 @@
 | 特色 | 說明 |
 |------|------|
 | 🪤 **情境陷阱教學** | 先讓使用者「親身中招」，再從錯誤中學習，印象更深刻 |
-| 🤖 **AI 導師「阿安」** | 支援 SSE 即時串流對話，能根據學習進度客製化引導 |
+| 📖 **情境式知識說明** | 每關附詳細知識解說，從陷阱中帶出重要概念 |
 | 🎮 **遊戲化學習** | XP 經驗值、等級升級、徽章蒐集，激勵持續學習 |
 | 🧪 **選擇題測驗** | 每關配備情境題，附詳細解析與提示 |
-| 🔒 **多層 AI 安全** | Prompt Injection 偵測 + 輸入過濾 + 速率限制 |
+| 🔒 **密碼安全設計** | Argon2id 雜湊、最小化個資蒐集 |
 | 🌙 **賽博龐克 UI** | Glassmorphism 風格、霓虹配色、掃描線動畫 |
+
+> 💡 **AI 對話功能**將在未來版本加入，目前以題庫與說明為主。
 
 ---
 
@@ -53,16 +55,12 @@
 │  Browser (SPA)                                       │
 │  Alpine.js + TailwindCSS + Glassmorphism UI          │
 ├──────────────────────────────────────────────────────┤
-│  Nginx (Reverse Proxy + SSL + Rate Limit)            │
+│  Nginx (Reverse Proxy + SSL)                         │
 ├──────────────────────────────────────────────────────┤
 │  FastAPI (async Python 3.11+)                        │
-│  ├── Auth (Argon2id)     ├── SSE Streaming           │
-│  ├── Lesson Engine       ├── Quiz System             │
-│  └── Prompt Injection Guard                          │
-├──────────────────────────────────────────────────────┤
-│  AI Provider (可切換)                                 │
-│  ├── Ollama (本地: DeepSeek / Qwen)                   │
-│  └── GitHub Models (雲端: GPT-4.1)                    │
+│  ├── Auth (Argon2id)     ├── Quiz System             │
+│  ├── Lesson Engine       ├── XP & Level System       │
+│  └── Email Reset                                     │
 ├──────────────────────────────────────────────────────┤
 │  SQLite (WAL mode)                                   │
 └──────────────────────────────────────────────────────┘
@@ -71,11 +69,9 @@
 | 層 | 技術 | 說明 |
 |----|------|------|
 | **前端** | [Alpine.js](https://alpinejs.dev) + [TailwindCSS](https://tailwindcss.com) | CDN 引入，零 build 步驟 |
-| **後端** | [FastAPI](https://fastapi.tiangolo.com) (Python 3.11+) | async 原生，SSE 串流支援 |
-| **資料庫** | [SQLite](https://sqlite.org) (WAL 模式) | 輕量高效，Phase 3 可升 PostgreSQL |
-| **AI 本地** | [Ollama](https://ollama.ai) + DeepSeek / Qwen | 本地推論，資料不離境 |
-| **AI 雲端** | [GitHub Models](https://github.com/marketplace/models) (GPT-4.1) | 雲端推論，Token 計費 |
-| **反代** | [Nginx](https://nginx.org) + [Let's Encrypt](https://letsencrypt.org) | HTTPS + 雙層速率限制 |
+| **後端** | [FastAPI](https://fastapi.tiangolo.com) (Python 3.11+) | async 原生，高效能 |
+| **資料庫** | [SQLite](https://sqlite.org) (WAL 模式) | 輕量高效，未來可升 PostgreSQL |
+| **反代** | [Nginx](https://nginx.org) + [Let's Encrypt](https://letsencrypt.org) | HTTPS 加密 |
 | **密碼** | [Argon2id](https://github.com/P-H-C/phc-winner-argon2) | OWASP 推薦的現代雜湊演算法 |
 | **容器** | [Docker](https://docker.com) + Docker Compose | 一鍵部署，環境一致 |
 
@@ -85,7 +81,7 @@
 
 ```
 Cybersecurity-study_web/
-├── main.py                  # FastAPI 後端（API + AI + DB + SEO）
+├── main.py                  # FastAPI 後端（API + DB + SEO）
 ├── index.html               # 前端 SPA 主模板（Alpine.js + Tailwind）
 ├── static/
 │   └── index.html           # 實際部署版本（含 SEO meta tags）
@@ -110,12 +106,7 @@ Cybersecurity-study_web/
 git clone https://github.com/yh11011/Cybersecurity-study_web.git
 cd Cybersecurity-study_web
 
-# 2. 設定環境變數（可選，依需求調整）
-export AI_PROVIDER=ollama              # ollama 或 github
-export OLLAMA_MODEL=qwen2.5:3b        # 本地模型名稱
-# export GITHUB_TOKEN=your_token      # 若使用 GitHub Models
-
-# 3. 一鍵啟動
+# 2. 一鍵啟動
 chmod +x deploy_docker.sh
 ./deploy_docker.sh
 ```
@@ -128,11 +119,7 @@ python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 
-# 2. 啟動 Ollama（若使用本地 AI）
-ollama pull qwen2.5:3b
-ollama serve &
-
-# 3. 啟動後端
+# 2. 啟動後端
 uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
@@ -159,12 +146,6 @@ sudo certbot --nginx -d yourdomain.com
 
 | 變數 | 預設值 | 說明 |
 |------|--------|------|
-| `AI_PROVIDER` | `ollama` | AI 提供者：`ollama`（本地）或 `github`（雲端） |
-| `OLLAMA_URL` | `http://127.0.0.1:11434/api/chat` | Ollama API 位址 |
-| `OLLAMA_MODEL` | `qwen2.5:3b` | Ollama 模型名稱 |
-| `OLLAMA_STREAM_MODE` | `char` | 串流模式：`char`（逐字）或 `chunk`（逐段） |
-| `GITHUB_TOKEN` | — | GitHub Models API Token |
-| `GITHUB_MODEL` | `gpt-4.1` | GitHub Models 模型名稱 |
 | `CORS_ORIGINS` | `https://cybersecurity.nex11.me,...` | 允許的 CORS 來源 |
 | `SMTP_EMAIL` | — | 忘記密碼功能的寄信信箱 |
 | `SMTP_APP_PASSWORD` | — | Gmail App Password |
@@ -188,7 +169,6 @@ sudo certbot --nginx -d yourdomain.com
 | 方法 | 路徑 | 說明 |
 |------|------|------|
 | `GET` | `/api/lessons` | 取得所有關卡資料 |
-| `POST` | `/api/chat` | AI 對話（SSE 即時串流） |
 | `GET` | `/api/questions/{lesson_id}` | 取得指定關卡的測驗題目 |
 | `POST` | `/api/answer` | 提交答案 + 更新掌握分數 |
 | `POST` | `/api/complete_lesson` | 完成關卡 + 發放 XP |
@@ -200,26 +180,19 @@ sudo certbot --nginx -d yourdomain.com
 | `GET` | `/` | 首頁（SPA，含結構化資料） |
 | `GET` | `/robots.txt` | 爬蟲規則與 Sitemap 入口 |
 | `GET` | `/sitemap.xml` | XML Sitemap |
-| `GET` | `/llms.txt` | AI 可讀網站摘要 |
+| `GET` | `/llms.txt` | 網站摘要 |
 
 ---
 
 ## 🛡️ 安全設計
-
-### Prompt Injection 防護
-- 中英文雙語 Regex 關鍵字偵測（`ignore instruction`、`忘記指令` 等）
-- 使用者輸入長度限制（500 字）
-- 每 session 獨立，AI 對話不持久化
-- 自動遮蔽程式碼區塊（Layer 1 防護）
 
 ### 密碼安全
 - **Argon2id** 雜湊（OWASP 推薦，不儲存明文）
 - 僅需暱稱即可註冊，最小化個人資訊蒐集
 - 可選綁定 Email 支援密碼重設
 
-### 速率限制（雙層）
-- **FastAPI 層**：每 session 每分鐘 10 次 AI 呼叫
-- **Nginx 層**：`limit_req_zone` 全域限流
+### Nginx 限流
+- `limit_req_zone` 全域限流防止濫用
 
 ---
 
@@ -230,16 +203,14 @@ sudo certbot --nginx -d yourdomain.com
 - [x] 使用者帳號系統（註冊 / 登入 / 忘記密碼）
 - [x] 學習地圖（5 關，逐步解鎖機制）
 - [x] 情境陷阱（關卡 1：假密碼強度計）
-- [x] AI 對話導師「阿安」（SSE 即時串流）
-- [x] Prompt Injection 防護（中英文 Regex）
-- [x] Rate Limit（API + Nginx 雙層）
+- [x] 情境知識說明（陷阱揭曉後的學習重點）
 - [x] 選擇題測驗系統（含解析與提示）
 - [x] 掌握分數計算（`user_knowledge` 表）
 - [x] XP 經驗值與等級系統
 - [x] Nginx 反向代理 + SSL
 - [x] Docker 容器化部署
 - [x] SEO 優化（Sitemap、robots.txt、JSON-LD、llms.txt）
-- [x] 賽博龐克風格 UI 重設計（Glassmorphism + 霓虹配色）
+- [x] 賽博龐克風格 UI（Glassmorphism + 霓虹配色）
 
 ### 🔜 Phase 2 — 內容擴充
 
@@ -249,11 +220,12 @@ sudo certbot --nginx -d yourdomain.com
 - [ ] 釣魚郵件陷阱（仿 Gmail UI）
 - [ ] 假瀏覽器通知彈窗（HTML/CSS 模擬）
 
-### 🔮 Phase 3 — AI 驅動
+### 🔮 Phase 3 — AI 驅動（規劃中）
 
-- [ ] DeepSeek 驅動選題（知識狀態 JSON）
+- [ ] AI 對話導師功能（SSE 串流）
+- [ ] AI 驅動選題（知識狀態 JSON）
 - [ ] AI 自動生成題目 + 人工審核
-- [ ] 外部 AI 工具整合（第三層防護）
+- [ ] Prompt Injection 防護
 - [ ] 升級 PostgreSQL 資料庫
 
 ---
@@ -261,32 +233,9 @@ sudo certbot --nginx -d yourdomain.com
 ## 📝 常見問題
 
 <details>
-<summary><b>Q: AI 回應很慢怎麼辦？</b></summary>
-
-CPU-only 模式下大型模型推論需要 15-60 秒，前端已有「阿安正在思考中⋯⋯」提示。  
-可在 `docker-compose.yml` 中切換為更小的模型（如 `qwen2.5:3b`）加速回應。  
-或設定 `AI_PROVIDER=github` 使用雲端 GPT-4.1 獲得更快的回應速度。
-</details>
-
-<details>
 <summary><b>Q: database locked 錯誤？</b></summary>
 
 確認 SQLite 的 `PRAGMA journal_mode=WAL` 有設定。WAL 模式支援多個讀取者同時讀取，大幅減少鎖定問題。本專案已在初始化時自動設定。
-</details>
-
-<details>
-<summary><b>Q: 如何切換 AI 模型？</b></summary>
-
-```bash
-# 使用本地 Ollama（預設）
-export AI_PROVIDER=ollama
-export OLLAMA_MODEL=qwen2.5:3b
-
-# 使用 GitHub Models（雲端 GPT-4.1）
-export AI_PROVIDER=github
-export GITHUB_TOKEN=your_github_token
-export GITHUB_MODEL=gpt-4.1
-```
 </details>
 
 <details>
@@ -310,7 +259,6 @@ journalctl -u cyberlearn -f
 | 🌐 [cybersecurity.nex11.me](https://cybersecurity.nex11.me) | 線上 Demo（Live） |
 | 📄 [GitHub Pages](https://yh11011.github.io) | 靜態前端頁面 |
 | 📦 [GitHub Repo](https://github.com/yh11011/Cybersecurity-study_web) | 原始碼 |
-| 🤖 [Ollama](https://ollama.ai) | 本地 AI 推論引擎 |
 | ⚡ [FastAPI Docs](https://fastapi.tiangolo.com) | 後端框架文件 |
 | 🎨 [Alpine.js](https://alpinejs.dev) | 前端互動框架 |
 | 🖌️ [TailwindCSS](https://tailwindcss.com) | 前端 CSS 框架 |
@@ -321,6 +269,6 @@ journalctl -u cyberlearn -f
 
 **Made with 🛡️ by [yh11011](https://github.com/yh11011)**
 
-_用 AI 守護每一位網路使用者的安全意識_
+_用知識守護每一位網路使用者的安全意識_
 
 </div>

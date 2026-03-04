@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>CyberLearn — AI 資安學習平台</title>
+<title>CyberLearn — 資安學習平台</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -39,7 +39,6 @@ tailwind.config = {
         'entrance': 'entrance 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards',
         'text-reveal': 'text-reveal 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards',
         'badge-pop': 'badge-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)',
-        'typing-bounce': 'typing-bounce 1.2s infinite',
         'fade-slide': 'fade-slide 0.3s ease forwards',
         'scan': 'scan 8s linear infinite',
         'glow-pulse': 'glow-pulse 3s ease-in-out infinite',
@@ -68,10 +67,6 @@ tailwind.config = {
         'badge-pop': {
           '0%': { opacity: '0', transform: 'scale(0.5) rotate(-10deg)' },
           '100%': { opacity: '1', transform: 'scale(1) rotate(0deg)' },
-        },
-        'typing-bounce': {
-          '0%, 60%, 100%': { transform: 'translateY(0)', opacity: '0.5' },
-          '30%': { transform: 'translateY(-8px)', opacity: '1' },
         },
         'fade-slide': {
           '0%': { opacity: '0', transform: 'translateY(10px)' },
@@ -329,31 +324,6 @@ tailwind.config = {
     box-shadow: 0 0 0 3px rgba(34,211,238,0.1), 0 0 30px rgba(34,211,238,0.08);
   }
 
-  /* ══ CHAT BUBBLES ══ */
-  .chat-bubble-ai {
-    background: rgba(241,245,249,0.95);
-    border: 1px solid #e2e8f0;
-    border-radius: 1rem 1rem 1rem 0.25rem;
-    padding: 0.875rem 1.125rem; max-width: 85%;
-    line-height: 1.7; animation: fade-slide 0.3s ease;
-  }
-  .dark .chat-bubble-ai {
-    background: rgba(15,23,42,0.8);
-    border-color: rgba(34,211,238,0.1);
-  }
-  .chat-bubble-user {
-    background: linear-gradient(135deg, rgba(6,182,212,0.08), rgba(34,211,238,0.08));
-    border: 1px solid rgba(6,182,212,0.2);
-    border-radius: 1rem 1rem 0.25rem 1rem;
-    padding: 0.875rem 1.125rem; max-width: 85%;
-    line-height: 1.7; animation: fade-slide 0.3s ease;
-    align-self: flex-end;
-  }
-  .dark .chat-bubble-user {
-    background: linear-gradient(135deg, rgba(34,211,238,0.08), rgba(56,189,248,0.06));
-    border-color: rgba(34,211,238,0.2);
-  }
-
   /* ══ NAVIGATION ══ */
   .floating-nav {
     position: sticky; top: 0; z-index: 50;
@@ -365,10 +335,6 @@ tailwind.config = {
   .dark .floating-nav {
     background: rgba(7,11,20,0.92);
     border-color: rgba(34,211,238,0.08);
-  }
-
-  @media (min-width: 1024px) {
-    .chat-bubble-ai, .chat-bubble-user { max-width: 70%; }
   }
 
   /* ══ LESSON CARDS ══ */
@@ -541,16 +507,6 @@ tailwind.config = {
   .stagger-4 { animation-delay: 0.2s; }
   .stagger-5 { animation-delay: 0.25s; }
 
-  /* ── Typing dots ── */
-  .typing-dot {
-    width: 8px; height: 8px;
-    background: #0891b2; border-radius: 50%;
-    animation: typing-bounce 1.2s infinite;
-  }
-  .dark .typing-dot { background: #22d3ee; }
-  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
-
   /* ── View transitions ── */
   [x-show] { transition: opacity 0.2s; }
 
@@ -685,8 +641,8 @@ tailwind.config = {
         </div>
         <div class="rounded-xl border border-surface-200 dark:border-surface-800 bg-surface-50/80 dark:bg-surface-900/40 p-4">
           <div class="text-2xl mb-2">🤖</div>
-          <div class="font-bold text-cyan-700 dark:text-cyan-300">互動式 AI 教練</div>
-          <div class="text-surface-500 dark:text-surface-400 mt-1 text-xs">對話式引導學習</div>
+          <div class="font-bold text-cyan-700 dark:text-cyan-300">情境式說明教學</div>
+          <div class="text-surface-500 dark:text-surface-400 mt-1 text-xs">從陷阱中學知識</div>
         </div>
         <div class="rounded-xl border border-surface-200 dark:border-surface-800 bg-surface-50/80 dark:bg-surface-900/40 p-4">
           <div class="text-2xl mb-2">🏆</div>
@@ -1046,7 +1002,7 @@ tailwind.config = {
     <div class="glass-card p-8 text-center mb-6 opacity-0 animate-entrance"
       style="border-color: rgba(251,191,36,0.3);">
       <div class="text-5xl mb-4 animate-badge-pop">⚠️</div>
-      <div class="text-xl font-bold mb-3 text-amber-600 dark:text-amber-400">等等，讓阿安說實話</div>
+      <div class="text-xl font-bold mb-3 text-amber-600 dark:text-amber-400">等等，真相是⋯⋯</div>
       <div class="text-base mb-4 text-surface-700 dark:text-surface-300" style="line-height:1.8;">
         你剛才輸入的密碼「<span class="font-bold font-mono text-red-500 dark:text-red-400" x-text="trapPassword"></span>」，
         系統顯示它很「強」——
@@ -1057,85 +1013,30 @@ tailwind.config = {
         駭客的字典裡就有成千上萬種「看起來複雜但其實有規律」的密碼組合。
       </div>
     </div>
+
+    <!-- Knowledge tips -->
+    <div class="glass-card p-6 mb-6 opacity-0 animate-entrance stagger-1 text-left">
+      <div class="text-lg font-bold mb-4 text-cyan-700 dark:text-cyan-300">📖 你需要知道的</div>
+      <div class="space-y-3 text-sm text-surface-700 dark:text-surface-300 leading-relaxed">
+        <div class="flex gap-3">
+          <span class="text-xl flex-shrink-0">🔑</span>
+          <div><strong class="text-surface-800 dark:text-surface-100">字典攻擊</strong>：駭客會用真實名字、寵物名、生日、常見組合來猜密碼。像「Whiskers2005」3 秒就能被猜到。</div>
+        </div>
+        <div class="flex gap-3">
+          <span class="text-xl flex-shrink-0">💪</span>
+          <div><strong class="text-surface-800 dark:text-surface-100">真正的強密碼</strong>：使用隨機字元或密碼管理器產生的長密碼（16+ 字元），不含個人資訊。</div>
+        </div>
+        <div class="flex gap-3">
+          <span class="text-xl flex-shrink-0">🛡️</span>
+          <div><strong class="text-surface-800 dark:text-surface-100">最佳做法</strong>：使用密碼管理器 + 每個網站不同密碼 + 開啟雙因素驗證（2FA）。</div>
+        </div>
+      </div>
+    </div>
+
     <div class="text-center opacity-0 animate-entrance stagger-2">
-      <button class="shimmer-btn px-8 text-base" @click="startChat()">
-        繼續：讓阿安教我 →
+      <button class="shimmer-btn px-8 text-base" @click="startQuiz()">
+        我學到了！開始測驗 →
       </button>
-    </div>
-  </div>
-
-  <!-- ── CHAT PHASE ── -->
-  <div x-show="lessonPhase === 'chat'" class="max-w-3xl mx-auto px-4 flex flex-col" style="height:calc(100vh - 60px);">
-    <!-- Chat header -->
-    <div class="py-4 border-b border-surface-200 dark:border-surface-800 flex items-center gap-3">
-      <div class="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm"
-        style="background:linear-gradient(135deg,#0891b2,#22d3ee); color:#042f2e;">阿安</div>
-      <div>
-        <div class="font-bold text-surface-800 dark:text-surface-100">阿安</div>
-        <div class="text-xs text-emerald-500 font-medium flex items-center gap-1.5">
-          <span class="status-online"></span> 在線中
-        </div>
-      </div>
-      <div class="ml-auto">
-        <div class="terminal-tag">
-          對話 <span x-text="chatTurns"></span>/5
-        </div>
-      </div>
-    </div>
-
-    <!-- Messages -->
-    <div class="flex-1 overflow-y-auto py-6 space-y-4" id="chatMessages" x-ref="chatMessages">
-      <template x-for="(msg, idx) in chatMessages" :key="idx">
-        <div class="flex" :class="msg.role === 'user' ? 'justify-end' : 'justify-start'">
-          <template x-if="msg.role === 'assistant'">
-            <div class="flex gap-3 max-w-[85%] lg:max-w-[70%]">
-              <div class="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold flex-shrink-0 mt-1"
-                style="background:linear-gradient(135deg,#0891b2,#22d3ee); color:#042f2e;">安</div>
-              <div class="chat-bubble-ai text-sm" x-text="msg.content"></div>
-            </div>
-          </template>
-          <template x-if="msg.role === 'user'">
-            <div class="chat-bubble-user text-sm" x-text="msg.content"></div>
-          </template>
-        </div>
-      </template>
-
-      <!-- Typing indicator -->
-      <div x-show="isTyping" class="flex gap-3">
-        <div class="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold"
-          style="background:linear-gradient(135deg,#0891b2,#22d3ee); color:#042f2e;">安</div>
-        <div class="chat-bubble-ai flex items-center gap-2">
-          <div class="typing-dot"></div>
-          <div class="typing-dot"></div>
-          <div class="typing-dot"></div>
-          <span class="text-xs ml-1 text-surface-400 font-mono">thinking...</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Input -->
-    <div class="py-4 border-t border-surface-200 dark:border-surface-800">
-      <template x-if="chatTurns >= 5">
-        <div class="text-center">
-          <div class="text-sm mb-3 text-surface-500 dark:text-surface-400">對話結束！準備好測試你的理解了嗎？</div>
-          <button class="shimmer-btn px-8" @click="startQuiz()">開始測驗 →</button>
-        </div>
-      </template>
-      <template x-if="chatTurns < 5">
-        <div>
-          <div class="flex gap-3">
-            <input class="input-field text-sm" type="text" x-model="chatInput"
-              placeholder="跟阿安聊聊... (最多 500 字)"
-              @keyup.enter="sendChat()" maxlength="500"
-              :disabled="isTyping"/>
-            <button class="shimmer-btn flex-shrink-0 px-5" @click="sendChat()" :disabled="isTyping || !chatInput.trim()">送出</button>
-          </div>
-          <div class="flex justify-between mt-2">
-            <div class="text-xs text-surface-400 font-mono" x-text="`${chatInput.length}/500`"></div>
-            <button class="text-xs underline text-surface-400 hover:text-cyan-600 dark:hover:text-cyan-300 bg-transparent border-none cursor-pointer transition-colors" @click="skipToQuiz()">跳過對話，直接測驗</button>
-          </div>
-        </div>
-      </template>
     </div>
   </div>
 
@@ -1287,14 +1188,7 @@ function cyberlearn() {
     trapMeterLabel: '',
     trapMeterColor: '',
 
-    // Chat
-    chatMessages: [],
-    chatInput: '',
-    chatTurns: 0,
-    isTyping: false,
-    sessionId: '',
-
-    // Quiz
+        // Quiz
     quizQuestions: [],
     currentQuestionIdx: 0,
     selectedAnswer: '',
@@ -1682,9 +1576,6 @@ function cyberlearn() {
       this.lessonPhase = 'trap';
       this.trapPassword = '';
       this.trapMeterPct = 0;
-      this.chatMessages = [];
-      this.chatInput = '';
-      this.chatTurns = 0;
       this.quizQuestions = [];
       this.currentQuestionIdx = 0;
       this.quizScore = 0;
@@ -1714,123 +1605,6 @@ function cyberlearn() {
     async triggerTrap() {
       if (!this.trapPassword || this.trapPassword.length < 4) return;
       this.lessonPhase = 'trap_reveal';
-    },
-
-    // ── Chat ──
-    async startChat() {
-      this.lessonPhase = 'chat';
-      await this.sendAiOpener();
-    },
-
-    async sendAiOpener() {
-      const openers = {
-        password_strength: `嘿！我是阿安 👋 剛才那個密碼強度計，其實在騙你喔！\n\n你輸入「${this.trapPassword}」，它顯示「強」——但我 3 秒就能猜到這種密碼，你信嗎？\n\n讓我告訴你：什麼樣的密碼才是真正讓駭客頭痛的？你覺得是什麼？`
-      };
-      const msg = openers[this.currentLesson?.id] || '嗨！我是阿安，讓我們一起學習資安吧！';
-      this.chatMessages.push({ role: 'assistant', content: msg });
-      this.chatTurns = 0;
-      this.$nextTick(() => this.scrollChat());
-    },
-
-    async sendChat() {
-      const msg = this.chatInput.trim();
-      if (!msg || this.isTyping) return;
-      this.chatInput = '';
-      this.chatMessages.push({ role: 'user', content: msg });
-      this.chatTurns++;
-      this.isTyping = true;
-      this.$nextTick(() => this.scrollChat());
-
-      try {
-        const res = await fetch('/api/chat', {
-          method: 'POST',
-          headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({
-            session_id: this.sessionId,
-            user_id: this.user.id,
-            lesson_id: this.currentLesson.id,
-            messages: this.chatMessages.slice(0, -1),
-            user_message: msg
-          })
-        });
-
-        if (res.headers.get('content-type')?.includes('text/event-stream')) {
-          const reader = res.body.getReader();
-          const decoder = new TextDecoder();
-          const hasVisibleText = (text = '') =>
-            text.replace(/[\s\u200B-\u200D\uFEFF]/g, '').length > 0;
-          let aiMsg = { role: 'assistant', content: '阿安正在整理回覆，請稍候…' };
-          this.chatMessages.push(aiMsg);
-          let sseBuffer = '';
-          let receivedVisibleText = false;
-
-          const handleSseLine = (line) => {
-            if (!line.startsWith('data: ')) return;
-            try {
-              const data = JSON.parse(line.slice(6));
-              if (typeof data.chunk === 'string' && data.chunk.length > 0) {
-                aiMsg.content = aiMsg.content === '阿安正在整理回覆，請稍候…'
-                  ? data.chunk
-                  : aiMsg.content + data.chunk;
-                if (hasVisibleText(data.chunk)) receivedVisibleText = true;
-                this.chatMessages = [...this.chatMessages];
-                this.$nextTick(() => this.scrollChat());
-              }
-              if (data.done && typeof data.full === 'string') {
-                aiMsg.content = hasVisibleText(data.full)
-                  ? data.full
-                  : (receivedVisibleText ? aiMsg.content : '阿安現在有點忙，請稍後再試 😅');
-                this.chatMessages = [...this.chatMessages];
-              }
-              if (typeof data.error === 'string' && data.error.length > 0) {
-                aiMsg.content = data.error;
-                if (hasVisibleText(data.error)) receivedVisibleText = true;
-                this.chatMessages = [...this.chatMessages];
-              }
-            } catch(e) {}
-          };
-
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            sseBuffer += decoder.decode(value, { stream: true });
-            const lines = sseBuffer.split('\n');
-            sseBuffer = lines.pop() || '';
-            for (const line of lines) {
-              handleSseLine(line.trim());
-            }
-          }
-          sseBuffer += decoder.decode();
-          if (sseBuffer.trim()) {
-            handleSseLine(sseBuffer.trim());
-          }
-          if (!hasVisibleText(aiMsg.content)) {
-            aiMsg.content = '阿安現在有點忙，請稍後再試 😅';
-            this.chatMessages = [...this.chatMessages];
-          }
-          this.isTyping = false;
-        } else {
-          const data = await res.json();
-          this.chatMessages.push({ role: 'assistant', content: data.response || '阿安有點累了，稍後再試 😅' });
-          this.isTyping = false;
-        }
-      } catch(e) {
-        this.chatMessages.push({ role: 'assistant', content: '阿安現在有點忙，請稍後再試 😅' });
-        this.isTyping = false;
-      }
-      this.$nextTick(() => this.scrollChat());
-    },
-
-    scrollChat() {
-      const el = document.getElementById('chatMessages');
-      if (el) el.scrollTop = el.scrollHeight;
-    },
-
-    skipToQuiz() {
-      if (this.chatMessages.length === 0) {
-        this.chatMessages.push({ role: 'assistant', content: '好，直接來測驗！準備好了嗎？' });
-      }
-      this.startQuiz();
     },
 
     // ── Quiz ──
