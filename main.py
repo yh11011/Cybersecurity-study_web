@@ -638,6 +638,26 @@ async def reset_password(req: ResetPasswordRequest):
         await db.commit()
     return {"ok": True, "message": "密碼已重設成功，請用新密碼登入"}
 
+@app.get("/api/me/{user_id}")
+async def get_me(user_id: int):
+    async with aiosqlite.connect(DB_PATH) as db:
+        await db.execute("PRAGMA journal_mode=WAL")
+        async with db.execute(
+            "SELECT id, nickname, xp, level, completed_lessons, email FROM users WHERE id=?",
+            (user_id,)
+        ) as cur:
+            row = await cur.fetchone()
+    if not row:
+        raise HTTPException(404, "找不到使用者")
+    return {
+        "user_id": row[0],
+        "nickname": row[1],
+        "xp": row[2],
+        "level": row[3],
+        "completed_lessons": json.loads(row[4] or "[]"),
+        "email": row[5] or ""
+    }
+
 @app.get("/api/lessons")
 async def get_lessons():
     return list(LESSONS.values())
