@@ -20,41 +20,62 @@ tailwind.config = {
         mono: ['Fira Code', 'monospace'],
       },
       colors: {
-        base: { DEFAULT: '#08090f', 50: '#12141f', 100: '#1a1d2e', 200: '#2a2d3e', 300: '#3a3d4e' },
+        base: { DEFAULT: 'var(--bg)', 50: 'var(--surface)', 100: 'var(--surface-2)', 200: 'var(--border)', 300: 'var(--border-hover)' },
         accent: { DEFAULT: '#f97316', light: '#fb923c', dark: '#ea580c' },
         info: { DEFAULT: '#06b6d4', light: '#22d3ee' },
         ok: { DEFAULT: '#22c55e', light: '#4ade80' },
         warn: { DEFAULT: '#eab308' },
         danger: { DEFAULT: '#ef4444', light: '#f87171' },
-        txt: { DEFAULT: '#eef0f6', muted: '#8b8fa3', dim: '#5b5f73' },
+        txt: { DEFAULT: 'var(--text)', muted: 'var(--text-muted)', dim: 'var(--text-dim)' },
       }
     }
   }
 }
 </script>
 <style>
+  /* ── Theme Variables ── */
+  :root {
+    --bg: #f8f9fb; --surface: #ffffff; --surface-2: #f1f3f7; --border: #e2e5ec; --border-hover: #cbd0d8;
+    --text: #1a1d2e; --text-muted: #5b6478; --text-dim: #8b92a3;
+    --card-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    --card-hover-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    --nav-bg: rgba(248,249,251,0.85);
+    --opt-letter-bg: #e8ebf0;
+    --scrollbar-track: #f1f3f7; --scrollbar-thumb: #d1d5de; --scrollbar-hover: #bbc0cc;
+  }
+  .dark {
+    --bg: #08090f; --surface: #12141f; --surface-2: #1a1d2e; --border: #2a2d3e; --border-hover: #3a3d4e;
+    --text: #eef0f6; --text-muted: #8b8fa3; --text-dim: #5b5f73;
+    --card-shadow: none;
+    --card-hover-shadow: 0 4px 24px rgba(0,0,0,0.3);
+    --nav-bg: rgba(8,9,15,0.8);
+    --opt-letter-bg: #2a2d3e;
+    --scrollbar-track: #12141f; --scrollbar-thumb: #2a2d3e; --scrollbar-hover: #3a3d4e;
+  }
+
   /* ── Base ── */
   *, *::before, *::after { box-sizing: border-box; }
-  body { font-family: 'DM Sans', system-ui, sans-serif; background: #08090f; color: #eef0f6; -webkit-font-smoothing: antialiased; }
+  body { font-family: 'DM Sans', system-ui, sans-serif; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; transition: background 0.3s, color 0.3s; }
   ::selection { background: rgba(249,115,22,0.3); }
   input:focus { outline: none; }
 
   /* ── Scrollbar ── */
   ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: #12141f; }
-  ::-webkit-scrollbar-thumb { background: #2a2d3e; border-radius: 3px; }
-  ::-webkit-scrollbar-thumb:hover { background: #3a3d4e; }
+  ::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+  ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-hover); }
 
   /* ── Card ── */
   .card {
-    background: #12141f;
-    border: 1px solid #2a2d3e;
+    background: var(--surface);
+    border: 1px solid var(--border);
     border-radius: 12px;
-    transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+    box-shadow: var(--card-shadow);
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s, background 0.3s;
   }
   .card:hover:not(.locked) {
-    border-color: #3a3d4e;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+    border-color: var(--border-hover);
+    box-shadow: var(--card-hover-shadow);
   }
   .card.interactive:hover:not(.locked) {
     transform: translateY(-2px);
@@ -72,17 +93,17 @@ tailwind.config = {
 
   /* ── Input ── */
   .field {
-    background: #1a1d2e;
-    border: 1px solid #2a2d3e;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
     border-radius: 8px;
     padding: 10px 14px;
-    color: #eef0f6;
+    color: var(--text);
     font-size: 15px;
     width: 100%;
-    transition: border-color 0.2s;
+    transition: border-color 0.2s, background 0.3s;
   }
   .field:focus { border-color: #f97316; }
-  .field::placeholder { color: #5b5f73; }
+  .field::placeholder { color: var(--text-dim); }
 
   /* ── Button ── */
   .btn-primary {
@@ -103,8 +124,8 @@ tailwind.config = {
 
   .btn-ghost {
     background: transparent;
-    border: 1px solid #2a2d3e;
-    color: #8b8fa3;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
     font-weight: 500;
     border-radius: 8px;
     padding: 8px 16px;
@@ -113,7 +134,7 @@ tailwind.config = {
     transition: border-color 0.2s, color 0.2s;
     font-family: 'DM Sans', system-ui, sans-serif;
   }
-  .btn-ghost:hover { border-color: #f97316; color: #eef0f6; }
+  .btn-ghost:hover { border-color: #f97316; color: var(--text); }
 
   /* ── Badge ── */
   .badge {
@@ -128,15 +149,19 @@ tailwind.config = {
     text-transform: uppercase;
     letter-spacing: 0.05em;
   }
-  .badge-ok { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.2); }
-  .badge-locked { background: rgba(239,68,68,0.1); color: #f87171; border: 1px solid rgba(239,68,68,0.15); }
-  .badge-active { background: rgba(249,115,22,0.15); color: #fb923c; border: 1px solid rgba(249,115,22,0.2); }
-  .badge-info { background: rgba(6,182,212,0.15); color: #22d3ee; border: 1px solid rgba(6,182,212,0.2); }
+  .badge-ok { background: rgba(34,197,94,0.15); color: #16a34a; border: 1px solid rgba(34,197,94,0.2); }
+  .dark .badge-ok { color: #4ade80; }
+  .badge-locked { background: rgba(239,68,68,0.1); color: #dc2626; border: 1px solid rgba(239,68,68,0.15); }
+  .dark .badge-locked { color: #f87171; }
+  .badge-active { background: rgba(249,115,22,0.15); color: #ea580c; border: 1px solid rgba(249,115,22,0.2); }
+  .dark .badge-active { color: #fb923c; }
+  .badge-info { background: rgba(6,182,212,0.15); color: #0891b2; border: 1px solid rgba(6,182,212,0.2); }
+  .dark .badge-info { color: #22d3ee; }
 
   /* ── Progress Bar ── */
   .progress-track {
     height: 6px;
-    background: #1a1d2e;
+    background: var(--surface-2);
     border-radius: 3px;
     overflow: hidden;
   }
@@ -169,8 +194,8 @@ tailwind.config = {
 
   /* ── Option Card for Quiz ── */
   .option-card {
-    background: #1a1d2e;
-    border: 1px solid #2a2d3e;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
     border-radius: 10px;
     padding: 12px 16px;
     cursor: pointer;
@@ -179,7 +204,7 @@ tailwind.config = {
     align-items: flex-start;
     gap: 12px;
   }
-  .option-card:hover:not(.answered) { border-color: rgba(249,115,22,0.5); background: #1e2233; }
+  .option-card:hover:not(.answered) { border-color: rgba(249,115,22,0.5); background: var(--surface); }
   .option-card.selected-correct { border-color: #22c55e; background: rgba(34,197,94,0.08); }
   .option-card.selected-wrong { border-color: #ef4444; background: rgba(239,68,68,0.08); }
   .option-card.revealed-correct { border-color: rgba(34,197,94,0.3); }
@@ -187,7 +212,7 @@ tailwind.config = {
     width: 28px; height: 28px;
     display: flex; align-items: center; justify-content: center;
     border-radius: 6px;
-    background: #2a2d3e;
+    background: var(--opt-letter-bg);
     font-family: 'Fira Code', monospace;
     font-weight: 600;
     font-size: 13px;
@@ -199,8 +224,8 @@ tailwind.config = {
 
   /* ── Trap Scenario Box ── */
   .scenario-box {
-    background: #1a1d2e;
-    border: 1px solid #2a2d3e;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
     border-radius: 12px;
     padding: 24px;
     position: relative;
@@ -216,8 +241,8 @@ tailwind.config = {
 
   /* ── Knowledge Card ── */
   .know-card {
-    background: #12141f;
-    border: 1px solid #2a2d3e;
+    background: var(--surface);
+    border: 1px solid var(--border);
     border-left: 3px solid #06b6d4;
     border-radius: 0 10px 10px 0;
     padding: 20px;
@@ -238,6 +263,9 @@ tailwind.config = {
     .btn-primary { padding: 12px 20px; }
   }
 
+  /* ── Nav ── */
+  .nav-blur { background: var(--nav-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+
   /* Confetti canvas */
   .confetti-canvas {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -246,7 +274,7 @@ tailwind.config = {
 </style>
 </head>
 
-<body x-data="cyberlearn()" x-init="init()" class="min-h-screen">
+<body x-data="cyberlearn()" x-init="init()" :class="{ dark: isDark }" class="min-h-screen">
 
 <!-- ══════════════════════════════════════════════════════════ -->
 <!--                    CONFETTI CANVAS                        -->
@@ -273,10 +301,10 @@ tailwind.config = {
     <!-- Tabs -->
     <div class="flex gap-1 mb-6 bg-base-100 rounded-lg p-1">
       <button @click="authTab='register'"
-        :class="authTab==='register' ? 'bg-base-200 text-txt shadow-sm' : 'text-txt-muted'"
+        :class="authTab==='register' ? 'bg-base-50 text-txt shadow-sm' : 'text-txt-muted'"
         class="flex-1 py-2 text-sm font-semibold rounded-md transition-all cursor-pointer">註冊</button>
       <button @click="authTab='login'"
-        :class="authTab==='login' ? 'bg-base-200 text-txt shadow-sm' : 'text-txt-muted'"
+        :class="authTab==='login' ? 'bg-base-50 text-txt shadow-sm' : 'text-txt-muted'"
         class="flex-1 py-2 text-sm font-semibold rounded-md transition-all cursor-pointer">登入</button>
     </div>
 
@@ -381,13 +409,18 @@ tailwind.config = {
 <div x-show="view === 'map'" x-transition:enter="anim-in" class="min-h-screen">
 
   <!-- Nav -->
-  <nav class="sticky top-0 z-50 bg-base/80 backdrop-blur-lg border-b border-base-200">
+  <nav class="sticky top-0 z-50 nav-blur">
     <div class="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
       <div class="flex items-center gap-2">
         <svg class="w-6 h-6 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         <span class="font-display font-700 text-base tracking-tight">CyberLearn</span>
       </div>
       <div class="flex items-center gap-3">
+        <!-- Theme toggle -->
+        <button @click="toggleTheme()" class="p-1.5 rounded-lg hover:bg-[var(--surface-2)] transition-colors cursor-pointer" title="切換主題">
+          <svg x-show="isDark" class="w-4 h-4 text-[var(--text-muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          <svg x-show="!isDark" class="w-4 h-4 text-[var(--text-muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+        </button>
         <span class="badge badge-active font-mono text-xs" x-text="`Lv.${user.level}`"></span>
         <div class="relative">
           <button @click="mapNavOpen = !mapNavOpen" class="flex items-center gap-2 cursor-pointer hover:text-accent transition-colors">
@@ -514,7 +547,7 @@ tailwind.config = {
 <div x-show="view === 'lesson'" x-transition:enter="anim-in" class="min-h-screen">
 
   <!-- Lesson Nav -->
-  <nav class="sticky top-0 z-50 bg-base/80 backdrop-blur-lg border-b border-base-200">
+  <nav class="sticky top-0 z-50 nav-blur">
     <div class="max-w-2xl mx-auto px-4 h-14 flex items-center gap-4">
       <button @click="exitLesson()" class="flex items-center gap-1.5 text-txt-muted hover:text-txt transition-colors cursor-pointer">
         <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
@@ -958,7 +991,13 @@ function cyberlearn() {
     confettiFrame: null,
 
     async init() {
-      document.documentElement.classList.add('dark');
+      const savedTheme = localStorage.getItem('cyberlearn_theme');
+      if (savedTheme) {
+        this.isDark = savedTheme === 'dark';
+      } else {
+        this.isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      }
+      this.applyTheme();
       const saved = localStorage.getItem('cyberlearn_user');
       if (saved) {
         try {
@@ -978,6 +1017,20 @@ function cyberlearn() {
         } catch(e) {
           localStorage.removeItem('cyberlearn_user');
         }
+      }
+    },
+
+    toggleTheme() {
+      this.isDark = !this.isDark;
+      localStorage.setItem('cyberlearn_theme', this.isDark ? 'dark' : 'light');
+      this.applyTheme();
+    },
+
+    applyTheme() {
+      if (this.isDark) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
       }
     },
 
