@@ -1,1442 +1,952 @@
 <!DOCTYPE html>
-<html lang="zh-TW" class="dark">
+<html lang="zh-TW">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>CyberLearn — 資安學習平台</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+TC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-
+<link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;800;900&family=DM+Sans:wght@400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
 <script>
 tailwind.config = {
   darkMode: 'class',
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Inter', 'Noto Sans TC', 'system-ui', 'sans-serif'],
-        mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+        display: ['Urbanist', 'system-ui', 'sans-serif'],
+        body: ['DM Sans', 'system-ui', 'sans-serif'],
+        mono: ['Fira Code', 'monospace'],
       },
       colors: {
-        cyber: {
-          50: '#ecfeff', 100: '#cffafe', 200: '#a5f3fc', 300: '#67e8f9',
-          400: '#22d3ee', 500: '#06b6d4', 600: '#0891b2', 700: '#0e7490',
-          800: '#155e75', 900: '#164e63', 950: '#083344',
-        },
-        surface: {
-          50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1',
-          400: '#94a3b8', 500: '#64748b', 600: '#475569', 700: '#334155',
-          800: '#1e293b', 850: '#172033', 900: '#0f172a', 950: '#070b14',
-        }
-      },
-      animation: {
-        'shimmer': 'shimmer 2.5s ease-in-out infinite',
-        'float': 'float 6s ease-in-out infinite',
-        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        'border-spin': 'border-spin 4s linear infinite',
-        'entrance': 'entrance 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards',
-        'text-reveal': 'text-reveal 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards',
-        'badge-pop': 'badge-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)',
-        'fade-slide': 'fade-slide 0.3s ease forwards',
-        'scan': 'scan 8s linear infinite',
-        'glow-pulse': 'glow-pulse 3s ease-in-out infinite',
-      },
-      keyframes: {
-        shimmer: {
-          '0%': { backgroundPosition: '-200% 0' },
-          '100%': { backgroundPosition: '200% 0' },
-        },
-        float: {
-          '0%, 100%': { transform: 'translateY(0px)' },
-          '50%': { transform: 'translateY(-10px)' },
-        },
-        'border-spin': {
-          '0%': { '--angle': '0deg' },
-          '100%': { '--angle': '360deg' },
-        },
-        entrance: {
-          '0%': { opacity: '0', transform: 'translateY(20px)' },
-          '100%': { opacity: '1', transform: 'translateY(0)' },
-        },
-        'text-reveal': {
-          '0%': { opacity: '0', transform: 'translateY(10px)', filter: 'blur(4px)' },
-          '100%': { opacity: '1', transform: 'translateY(0)', filter: 'blur(0)' },
-        },
-        'badge-pop': {
-          '0%': { opacity: '0', transform: 'scale(0.5) rotate(-10deg)' },
-          '100%': { opacity: '1', transform: 'scale(1) rotate(0deg)' },
-        },
-        'fade-slide': {
-          '0%': { opacity: '0', transform: 'translateY(10px)' },
-          '100%': { opacity: '1', transform: 'translateY(0)' },
-        },
-        scan: {
-          '0%': { transform: 'translateY(-100%)' },
-          '100%': { transform: 'translateY(100vh)' },
-        },
-        'glow-pulse': {
-          '0%, 100%': { opacity: '0.4' },
-          '50%': { opacity: '0.8' },
-        },
-      },
+        base: { DEFAULT: '#08090f', 50: '#12141f', 100: '#1a1d2e', 200: '#2a2d3e', 300: '#3a3d4e' },
+        accent: { DEFAULT: '#f97316', light: '#fb923c', dark: '#ea580c' },
+        info: { DEFAULT: '#06b6d4', light: '#22d3ee' },
+        ok: { DEFAULT: '#22c55e', light: '#4ade80' },
+        warn: { DEFAULT: '#eab308' },
+        danger: { DEFAULT: '#ef4444', light: '#f87171' },
+        txt: { DEFAULT: '#eef0f6', muted: '#8b8fa3', dim: '#5b5f73' },
+      }
     }
   }
 }
 </script>
-
 <style>
-  /* ══ CYBER SHIELD DESIGN SYSTEM ══ */
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html { scroll-behavior: smooth; }
-  :root {
-    --pointer-x: 50vw;
-    --pointer-y: 30vh;
-    --cyber-glow: 0 0 20px rgba(34,211,238,0.15), 0 0 60px rgba(34,211,238,0.05);
-    --cyber-glow-strong: 0 0 20px rgba(34,211,238,0.25), 0 0 80px rgba(34,211,238,0.1);
-  }
-  body {
-    font-family: 'Inter', 'Noto Sans TC', system-ui, sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-    transition: background-color 0.4s ease, color 0.4s ease;
-  }
-  [x-cloak] { display: none !important; }
+  /* ── Base ── */
+  *, *::before, *::after { box-sizing: border-box; }
+  body { font-family: 'DM Sans', system-ui, sans-serif; background: #08090f; color: #eef0f6; -webkit-font-smoothing: antialiased; }
+  ::selection { background: rgba(249,115,22,0.3); }
+  input:focus { outline: none; }
 
-  /* ── Light mode ── */
-  body { background: #f1f5f9; color: #0f172a; }
-  .dark body, html.dark body { background: #070b14; color: #e2e8f0; }
-
-  /* ── Particle Canvas ── */
-  .particles-canvas {
-    position: fixed; inset: 0; z-index: 0; pointer-events: none;
-  }
-
-  /* ── Grid Pattern ── */
-  .grid-pattern {
-    position: fixed; inset: 0; z-index: 0; pointer-events: none;
-    background-image:
-      linear-gradient(rgba(34,211,238,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(34,211,238,0.03) 1px, transparent 1px);
-    background-size: 48px 48px;
-  }
-  .dark .grid-pattern {
-    background-image:
-      linear-gradient(rgba(34,211,238,0.06) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(34,211,238,0.06) 1px, transparent 1px);
-  }
-
-  /* ── Scanline Overlay ── */
-  .scanline-overlay {
-    position: fixed; inset: 0; z-index: 1; pointer-events: none;
-    background: repeating-linear-gradient(
-      0deg, transparent, transparent 2px,
-      rgba(34,211,238,0.015) 2px, rgba(34,211,238,0.015) 4px
-    );
-  }
-  .dark .scanline-overlay {
-    background: repeating-linear-gradient(
-      0deg, transparent, transparent 2px,
-      rgba(34,211,238,0.025) 2px, rgba(34,211,238,0.025) 4px
-    );
-  }
-
-  /* ── Noise Overlay ── */
-  .noise-overlay {
-    position: fixed; inset: 0; z-index: 1; pointer-events: none;
-    opacity: 0.04; mix-blend-mode: soft-light;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
-  }
-  .dark .noise-overlay { opacity: 0.08; mix-blend-mode: overlay; }
-
-  /* ── Ambient Glow ── */
-  .ambient-glow {
-    position: fixed; top: -300px; left: 50%; transform: translateX(-50%);
-    width: 900px; height: 500px; pointer-events: none; z-index: 0;
-    background: radial-gradient(ellipse, rgba(34,211,238,0.06) 0%, rgba(6,182,212,0.03) 40%, transparent 70%);
-    filter: blur(50px);
-  }
-  .dark .ambient-glow {
-    background: radial-gradient(ellipse, rgba(34,211,238,0.1) 0%, rgba(6,182,212,0.05) 40%, transparent 70%);
-  }
-
-  /* ── Cursor Spotlight ── */
-  .cursor-spotlight {
-    position: fixed; width: 500px; height: 500px;
-    left: var(--pointer-x); top: var(--pointer-y);
-    transform: translate(-50%, -50%);
-    border-radius: 50%; pointer-events: none; z-index: 2;
-    opacity: 0; transition: opacity 0.3s ease;
-    background: radial-gradient(circle, rgba(34,211,238,0.08) 0%, rgba(6,182,212,0.04) 30%, transparent 70%);
-    filter: blur(15px);
-  }
-  .dark .cursor-spotlight {
-    background: radial-gradient(circle, rgba(34,211,238,0.14) 0%, rgba(6,182,212,0.07) 35%, transparent 72%);
-  }
-  .cursor-spotlight.active { opacity: 1; }
-
-  /* ── Mesh Accent ── */
-  .mesh-accent {
-    position: fixed; bottom: -200px; right: -200px;
-    width: 600px; height: 600px;
-    background: radial-gradient(circle, rgba(139,92,246,0.04) 0%, transparent 70%);
-    pointer-events: none; z-index: 0; filter: blur(60px);
-  }
-  .dark .mesh-accent {
-    background: radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 70%);
-  }
-
-  /* ── Gradient Text ── */
-  .gradient-text {
-    background: linear-gradient(135deg, #22d3ee, #38bdf8, #06b6d4);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  .gradient-text-green {
-    background: linear-gradient(135deg, #34d399, #22d3ee);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  /* ══ GLASS CARD ══ */
-  .glass-card {
-    background: rgba(255,255,255,0.85);
-    backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
-    border: 1px solid rgba(14,116,144,0.12);
-    border-radius: 1rem;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-    transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  .dark .glass-card {
-    background: rgba(15,23,42,0.7);
-    border-color: rgba(34,211,238,0.1);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 0 0 0px rgba(34,211,238,0);
-  }
-  .dark .glass-card:hover {
-    border-color: rgba(34,211,238,0.2);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.3), var(--cyber-glow);
-  }
-
-  /* ── Tilt Card ── */
-  .tilt-card {
-    --tilt-x: 0deg; --tilt-y: 0deg; --tilt-lift: 0px; --tilt-scale: 1;
-    --spot-x: 50%; --spot-y: 40%;
-    position: relative; transform-style: preserve-3d;
-    transform: perspective(1100px) translateY(var(--tilt-lift)) scale(var(--tilt-scale)) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
-  }
-  .tilt-card::after {
-    content: ''; position: absolute; inset: 0; opacity: 0;
-    pointer-events: none; border-radius: inherit;
-    background: radial-gradient(circle at var(--spot-x) var(--spot-y), rgba(34,211,238,0.12), transparent 60%);
-    transition: opacity 0.24s ease;
-  }
-  .tilt-card:hover::after { opacity: 1; }
-
-  /* ══ BUTTONS ══ */
-  .shimmer-btn {
-    position: relative;
-    background: linear-gradient(135deg, #0891b2, #0e7490);
-    color: #f0fdfa; font-weight: 600;
-    border: none; border-radius: 0.75rem;
-    padding: 0.75rem 1.75rem; cursor: pointer;
-    overflow: hidden;
-    transition: transform 0.2s, box-shadow 0.2s;
-    box-shadow: 0 4px 16px rgba(6,182,212,0.25);
-    font-family: inherit;
-  }
-  .dark .shimmer-btn {
-    background: linear-gradient(135deg, #22d3ee, #0891b2);
-    color: #042f2e;
-    box-shadow: 0 4px 16px rgba(34,211,238,0.3);
-  }
-  .shimmer-btn::after {
-    content: ''; position: absolute; inset: 0;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-    background-size: 200% 100%;
-    animation: shimmer 2.5s ease-in-out infinite;
-  }
-  .shimmer-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(6,182,212,0.35);
-  }
-  .dark .shimmer-btn:hover {
-    box-shadow: 0 8px 30px rgba(34,211,238,0.4);
-  }
-  .shimmer-btn:active { transform: translateY(0) scale(0.97); }
-  .shimmer-btn:disabled {
-    opacity: 0.5; cursor: not-allowed;
-    transform: none !important;
-    box-shadow: 0 4px 16px rgba(6,182,212,0.15) !important;
-  }
-
-  .ghost-btn {
-    background: transparent;
-    border: 1.5px solid rgba(6,182,212,0.3);
-    color: #0891b2; font-weight: 500;
-    border-radius: 0.75rem; padding: 0.625rem 1.5rem;
-    cursor: pointer; transition: all 0.2s; font-family: inherit;
-  }
-  .ghost-btn:hover {
-    background: rgba(6,182,212,0.06);
-    border-color: #0891b2;
-  }
-  .ghost-btn:active { transform: scale(0.97); }
-  .dark .ghost-btn {
-    border-color: rgba(34,211,238,0.25);
-    color: #67e8f9;
-  }
-  .dark .ghost-btn:hover {
-    background: rgba(34,211,238,0.08);
-    border-color: rgba(34,211,238,0.5);
-  }
-
-  .danger-btn {
-    background: linear-gradient(135deg, #ef4444, #dc2626);
-    color: #fef2f2; font-weight: 600;
-    border: none; border-radius: 0.75rem;
-    padding: 0.625rem 1.5rem; cursor: pointer; font-family: inherit;
-  }
-
-  /* ══ INPUTS ══ */
-  .input-field {
-    background: rgba(241,245,249,0.95);
-    border: 1.5px solid #cbd5e1;
-    border-radius: 0.75rem; padding: 0.75rem 1rem;
-    color: #0f172a; width: 100%;
-    font-family: inherit; font-size: 0.9375rem;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    outline: none;
-  }
-  .input-field::placeholder { color: #94a3b8; }
-  .input-field:focus {
-    border-color: #0891b2;
-    box-shadow: 0 0 0 3px rgba(6,182,212,0.12), 0 0 20px rgba(6,182,212,0.08);
-  }
-  .dark .input-field {
-    background: rgba(15,23,42,0.8);
-    border-color: rgba(34,211,238,0.15);
-    color: #e2e8f0;
-  }
-  .dark .input-field::placeholder { color: #64748b; }
-  .dark .input-field:focus {
-    border-color: rgba(34,211,238,0.5);
-    box-shadow: 0 0 0 3px rgba(34,211,238,0.1), 0 0 30px rgba(34,211,238,0.08);
-  }
-
-  /* ══ NAVIGATION ══ */
-  .floating-nav {
-    position: sticky; top: 0; z-index: 50;
-    background: rgba(241,245,249,0.92);
-    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(14,116,144,0.1);
-    transition: background-color 0.3s, border-color 0.3s;
-  }
-  .dark .floating-nav {
-    background: rgba(7,11,20,0.92);
-    border-color: rgba(34,211,238,0.08);
-  }
-
-  /* ══ LESSON CARDS ══ */
-  .lesson-card-3d {
-    --tilt-x: 0deg; --tilt-y: 0deg; --tilt-lift: 0px; --tilt-scale: 1;
-    --spot-x: 50%; --spot-y: 40%;
-    background: rgba(255,255,255,0.9);
-    border: 1px solid rgba(14,116,144,0.1);
-    border-radius: 1rem; padding: 1.5rem;
-    cursor: pointer;
-    transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-    position: relative; overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    transform-style: preserve-3d;
-    transform: perspective(1100px) translateY(var(--tilt-lift)) scale(var(--tilt-scale)) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
-  }
-  .lesson-card-3d::before {
-    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
-    width: 3px; background: #0891b2; border-radius: 3px 0 0 3px;
-    opacity: 0; transition: opacity 0.3s ease;
-  }
-  .lesson-card-3d:hover:not(.locked)::before { opacity: 1; }
-  .lesson-card-3d::after {
-    content: ''; position: absolute; inset: 0; opacity: 0;
-    pointer-events: none;
-    background: radial-gradient(circle at var(--spot-x) var(--spot-y), rgba(34,211,238,0.08), transparent 56%);
-    transition: opacity 0.25s ease;
-  }
-  .lesson-card-3d:hover:not(.locked) {
-    --tilt-lift: -4px; --tilt-scale: 1.02;
-    border-color: rgba(6,182,212,0.3);
-    box-shadow: 0 12px 40px rgba(6,182,212,0.08), 0 4px 12px rgba(0,0,0,0.04);
-  }
-  .lesson-card-3d:hover::after { opacity: 1; }
-  .lesson-card-3d.locked { opacity: 0.45; cursor: not-allowed; border-style: dashed; }
-  .lesson-card-3d.completed {
-    border-color: rgba(52,211,153,0.3);
-  }
-  .lesson-card-3d.completed::before {
-    opacity: 1; background: #34d399;
-  }
-  .dark .lesson-card-3d {
-    background: rgba(15,23,42,0.6);
-    border-color: rgba(34,211,238,0.08);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-  }
-  .dark .lesson-card-3d:hover:not(.locked) {
-    box-shadow: 0 12px 40px rgba(34,211,238,0.1), 0 4px 12px rgba(0,0,0,0.2);
-    border-color: rgba(34,211,238,0.3);
-  }
-  .dark .lesson-card-3d.completed {
-    background: linear-gradient(135deg, rgba(15,23,42,0.6), rgba(52,211,153,0.04));
-    border-color: rgba(52,211,153,0.25);
-  }
-
-  /* ══ QUIZ OPTIONS ══ */
-  .quiz-option {
-    background: rgba(241,245,249,0.9);
-    border: 1.5px solid #e2e8f0;
-    border-radius: 0.875rem; padding: 0.875rem 1.125rem;
-    cursor: pointer; transition: all 0.2s;
-    text-align: left; width: 100%;
-    color: #0f172a; font-family: inherit; font-size: 0.9375rem;
-  }
-  .quiz-option:hover:not(:disabled) {
-    border-color: #0891b2;
-    background: rgba(6,182,212,0.04);
-    transform: translateX(4px);
-  }
-  .quiz-option.correct { border-color: #10b981; background: rgba(16,185,129,0.08); }
-  .quiz-option.wrong { border-color: #ef4444; background: rgba(239,68,68,0.08); }
-  .quiz-option:disabled { cursor: default; transform: none !important; }
-  .dark .quiz-option {
-    background: rgba(15,23,42,0.6);
-    border-color: rgba(34,211,238,0.1);
-    color: #e2e8f0;
-  }
-  .dark .quiz-option:hover:not(:disabled) {
-    border-color: rgba(34,211,238,0.4);
-    background: rgba(34,211,238,0.06);
-  }
-  .dark .quiz-option.correct { border-color: #34d399; background: rgba(52,211,153,0.1); }
-  .dark .quiz-option.wrong { border-color: #f87171; background: rgba(248,113,113,0.1); }
-
-  /* ══ PROGRESS BAR ══ */
-  .progress-bar {
-    height: 5px; background: #e2e8f0;
-    border-radius: 99px; overflow: hidden;
-  }
-  .dark .progress-bar { background: rgba(34,211,238,0.1); }
-  .progress-fill {
-    height: 100%; border-radius: 99px;
-    background: linear-gradient(90deg, #0891b2, #22d3ee);
-    transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-  .dark .progress-fill {
-    background: linear-gradient(90deg, #06b6d4, #22d3ee);
-    box-shadow: 0 0 12px rgba(34,211,238,0.4);
-  }
-  .pw-strength-bar { height: 6px; border-radius: 99px; transition: all 0.3s; }
-
-  /* ══ XP PILL ══ */
-  .xp-pill {
-    background: linear-gradient(135deg, rgba(6,182,212,0.08), rgba(34,211,238,0.08));
-    border: 1px solid rgba(6,182,212,0.2);
-    border-radius: 99px; padding: 0.25rem 0.875rem;
-    font-size: 0.8125rem; font-weight: 600;
-    font-family: 'JetBrains Mono', monospace;
-    color: #0891b2;
-  }
-  .dark .xp-pill {
-    background: linear-gradient(135deg, rgba(34,211,238,0.12), rgba(56,189,248,0.08));
-    border-color: rgba(34,211,238,0.2);
-    color: #67e8f9;
-    text-shadow: 0 0 12px rgba(34,211,238,0.3);
-  }
-
-  /* ══ THEME TOGGLE ══ */
-  .theme-toggle {
-    position: relative; width: 3.4rem; height: 1.8rem;
-    border-radius: 99px;
-    background: linear-gradient(135deg, #e0f2fe, #bae6fd);
-    border: 1px solid rgba(6,182,212,0.2);
-    cursor: pointer; transition: background 0.3s, border-color 0.3s;
-    padding: 0; overflow: hidden;
-  }
-  .theme-toggle::before {
-    content: ''; position: absolute; inset: 0;
-    background: radial-gradient(circle at 24% 50%, rgba(34,211,238,0.2), transparent 38%);
-    opacity: 1; transition: opacity 0.3s ease;
-  }
-  .theme-toggle::after {
-    content: ''; position: absolute; top: 2px; left: 2px;
-    width: 1.35rem; height: 1.35rem; border-radius: 50%;
-    background: radial-gradient(circle at 35% 35%, #ecfeff 0%, #22d3ee 65%);
-    box-shadow: 0 0 0 1px rgba(34,211,238,0.4), 0 2px 7px rgba(0,0,0,0.15);
-    transition: transform 0.38s cubic-bezier(0.22, 1, 0.36, 1), background 0.3s ease;
-    z-index: 2;
-  }
-  .dark .theme-toggle {
-    background: linear-gradient(135deg, #0c4a6e, #164e63);
-    border-color: rgba(34,211,238,0.2);
-  }
-  .dark .theme-toggle::before { opacity: 0; }
-  .dark .theme-toggle::after {
-    transform: translateX(1.6rem) rotate(-28deg);
-    background: radial-gradient(circle at 30% 30%, #cffafe 0%, #0891b2 70%);
-    box-shadow: 0 0 0 1px rgba(34,211,238,0.4), 0 0 14px rgba(34,211,238,0.4);
-  }
-  .theme-toggle .theme-icon {
-    position: absolute; top: 50%; transform: translateY(-50%);
-    font-size: 0.7rem; line-height: 1;
-    transition: opacity 0.25s ease; z-index: 3;
-  }
-  .theme-toggle .sun { right: 0.45rem; opacity: 1; }
-  .theme-toggle .moon { left: 0.48rem; opacity: 0; }
-  .dark .theme-toggle .sun { opacity: 0; }
-  .dark .theme-toggle .moon { opacity: 1; }
-
-  /* ══ SCROLLBAR ══ */
+  /* ── Scrollbar ── */
   ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 99px; }
-  .dark ::-webkit-scrollbar-thumb { background: rgba(34,211,238,0.2); }
+  ::-webkit-scrollbar-track { background: #12141f; }
+  ::-webkit-scrollbar-thumb { background: #2a2d3e; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #3a3d4e; }
 
-  /* ── Stagger helpers ── */
-  .stagger-1 { animation-delay: 0.05s; }
-  .stagger-2 { animation-delay: 0.1s; }
-  .stagger-3 { animation-delay: 0.15s; }
-  .stagger-4 { animation-delay: 0.2s; }
-  .stagger-5 { animation-delay: 0.25s; }
-
-  /* ── View transitions ── */
-  [x-show] { transition: opacity 0.2s; }
-
-  /* ── Hero aurora ── */
-  .hero-aurora {
-    position: absolute; top: -140px; left: 50%;
-    transform: translateX(-50%);
-    width: 640px; height: 220px;
-    pointer-events: none; z-index: 0;
-    background: conic-gradient(from 0deg, rgba(34,211,238,0.2), rgba(56,189,248,0.15), rgba(52,211,153,0.12), rgba(34,211,238,0.2));
-    filter: blur(45px);
-    animation: aurora-shift 8s linear infinite;
+  /* ── Card ── */
+  .card {
+    background: #12141f;
+    border: 1px solid #2a2d3e;
+    border-radius: 12px;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
   }
-  .hero-caret {
-    display: inline-block; margin-left: 2px;
-    animation: caret-blink 0.9s steps(1) infinite;
-    color: #22d3ee;
+  .card:hover:not(.locked) {
+    border-color: #3a3d4e;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.3);
   }
-  .floating-cyber-icon {
-    position: absolute; font-size: 0.95rem;
-    opacity: 0.5; pointer-events: none;
-    animation: float 6s ease-in-out infinite;
+  .card.interactive:hover:not(.locked) {
+    transform: translateY(-2px);
+    border-color: rgba(249,115,22,0.4);
+    cursor: pointer;
+  }
+  .card.locked {
+    opacity: 0.45;
+    filter: grayscale(0.5);
+    cursor: not-allowed;
+  }
+  .card.completed {
+    border-color: rgba(34,197,94,0.3);
   }
 
-  /* ── Confetti ── */
-  .confetti-canvas {
-    position: fixed; inset: 0; pointer-events: none;
-    z-index: 30; opacity: 0; transition: opacity 0.2s ease;
+  /* ── Input ── */
+  .field {
+    background: #1a1d2e;
+    border: 1px solid #2a2d3e;
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: #eef0f6;
+    font-size: 15px;
+    width: 100%;
+    transition: border-color 0.2s;
   }
-  .confetti-canvas.active { opacity: 1; }
+  .field:focus { border-color: #f97316; }
+  .field::placeholder { color: #5b5f73; }
 
-  /* ── Terminal tag ── */
-  .terminal-tag {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.7rem; font-weight: 600;
-    letter-spacing: 0.08em; text-transform: uppercase;
-    padding: 0.2rem 0.6rem; border-radius: 0.375rem;
-    background: rgba(6,182,212,0.08); color: #0891b2;
-    border: 1px solid rgba(6,182,212,0.15);
+  /* ── Button ── */
+  .btn-primary {
+    background: linear-gradient(135deg, #f97316, #ea580c);
+    color: #fff;
+    font-weight: 600;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 15px;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.15s;
+    font-family: 'DM Sans', system-ui, sans-serif;
   }
-  .dark .terminal-tag {
-    background: rgba(34,211,238,0.08); color: #67e8f9;
-    border-color: rgba(34,211,238,0.15);
-    text-shadow: 0 0 8px rgba(34,211,238,0.3);
+  .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid #2a2d3e;
+    color: #8b8fa3;
+    font-weight: 500;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+    font-family: 'DM Sans', system-ui, sans-serif;
+  }
+  .btn-ghost:hover { border-color: #f97316; color: #eef0f6; }
+
+  /* ── Badge ── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: 'Fira Code', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .badge-ok { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.2); }
+  .badge-locked { background: rgba(239,68,68,0.1); color: #f87171; border: 1px solid rgba(239,68,68,0.15); }
+  .badge-active { background: rgba(249,115,22,0.15); color: #fb923c; border: 1px solid rgba(249,115,22,0.2); }
+  .badge-info { background: rgba(6,182,212,0.15); color: #22d3ee; border: 1px solid rgba(6,182,212,0.2); }
+
+  /* ── Progress Bar ── */
+  .progress-track {
+    height: 6px;
+    background: #1a1d2e;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: linear-gradient(90deg, #f97316, #fb923c);
+    transition: width 0.5s ease;
   }
 
-  /* ── Status badge ── */
-  .status-online {
-    width: 6px; height: 6px; border-radius: 50%;
-    background: #34d399; display: inline-block;
-    box-shadow: 0 0 8px rgba(52,211,153,0.5);
-    animation: glow-pulse 3s ease-in-out infinite;
+  /* ── Step indicator ── */
+  .step-num {
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 8px;
+    font-family: 'Fira Code', monospace;
+    font-weight: 600;
+    font-size: 14px;
+    flex-shrink: 0;
   }
 
-  /* ── Gradient border card ── */
-  .gradient-border-card {
+  /* ── Animations ── */
+  @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+  @keyframes pulse-ring { 0% { box-shadow: 0 0 0 0 rgba(249,115,22,0.4); } 100% { box-shadow: 0 0 0 12px rgba(249,115,22,0); } }
+  .anim-up { animation: fadeUp 0.4s ease both; }
+  .anim-in { animation: fadeIn 0.3s ease both; }
+  .d1 { animation-delay: 0.05s; } .d2 { animation-delay: 0.1s; } .d3 { animation-delay: 0.15s; }
+  .d4 { animation-delay: 0.2s; } .d5 { animation-delay: 0.25s; } .d6 { animation-delay: 0.3s; }
+
+  /* ── Option Card for Quiz ── */
+  .option-card {
+    background: #1a1d2e;
+    border: 1px solid #2a2d3e;
+    border-radius: 10px;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .option-card:hover:not(.answered) { border-color: rgba(249,115,22,0.5); background: #1e2233; }
+  .option-card.selected-correct { border-color: #22c55e; background: rgba(34,197,94,0.08); }
+  .option-card.selected-wrong { border-color: #ef4444; background: rgba(239,68,68,0.08); }
+  .option-card.revealed-correct { border-color: rgba(34,197,94,0.3); }
+  .option-card .opt-letter {
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 6px;
+    background: #2a2d3e;
+    font-family: 'Fira Code', monospace;
+    font-weight: 600;
+    font-size: 13px;
+    flex-shrink: 0;
+    transition: background 0.2s, color 0.2s;
+  }
+  .option-card.selected-correct .opt-letter { background: #22c55e; color: #fff; }
+  .option-card.selected-wrong .opt-letter { background: #ef4444; color: #fff; }
+
+  /* ── Trap Scenario Box ── */
+  .scenario-box {
+    background: #1a1d2e;
+    border: 1px solid #2a2d3e;
+    border-radius: 12px;
+    padding: 24px;
     position: relative;
-    background: rgba(255,255,255,0.9);
-    border-radius: 1rem; overflow: hidden;
-    transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
   }
-  .gradient-border-card::before {
-    content: ''; position: absolute; inset: 0;
-    border-radius: 1rem; padding: 1.5px;
-    background: linear-gradient(135deg, #22d3ee, #06b6d4, #0891b2, #22d3ee);
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor; mask-composite: exclude;
-    opacity: 0; transition: opacity 0.3s ease;
+  .scenario-box::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    border-radius: 12px 12px 0 0;
+    background: linear-gradient(90deg, #f97316, #06b6d4);
   }
-  .gradient-border-card:hover::before { opacity: 1; }
-  .dark .gradient-border-card { background: rgba(15,23,42,0.7); }
 
-  @keyframes aurora-shift {
-    0% { transform: translateX(-50%) rotate(0deg) scale(1); }
-    50% { transform: translateX(-50%) rotate(180deg) scale(1.06); }
-    100% { transform: translateX(-50%) rotate(360deg) scale(1); }
+  /* ── Knowledge Card ── */
+  .know-card {
+    background: #12141f;
+    border: 1px solid #2a2d3e;
+    border-left: 3px solid #06b6d4;
+    border-radius: 0 10px 10px 0;
+    padding: 20px;
   }
-  @keyframes caret-blink {
-    0%, 45% { opacity: 1; }
-    46%, 100% { opacity: 0; }
+
+  /* ── Reveal Alert ── */
+  .reveal-alert {
+    background: linear-gradient(135deg, rgba(249,115,22,0.08), rgba(234,88,12,0.04));
+    border: 1px solid rgba(249,115,22,0.25);
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
   }
-  @keyframes grain-shift {
-    0% { transform: translate(0, 0); }
-    20% { transform: translate(-2%, 1%); }
-    40% { transform: translate(1%, -1%); }
-    60% { transform: translate(2%, 2%); }
-    80% { transform: translate(-1%, 2%); }
-    100% { transform: translate(0, 0); }
+
+  /* ── Responsive ── */
+  @media (max-width: 640px) {
+    .field { font-size: 16px; padding: 12px 14px; }
+    .btn-primary { padding: 12px 20px; }
   }
-  @keyframes input-glow-shift {
-    0% { background-position: 0% 50%; }
-    100% { background-position: 200% 50%; }
+
+  /* Confetti canvas */
+  .confetti-canvas {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 100;
   }
 </style>
 </head>
 
-<body x-data="cyberlearn()" x-init="init()" :class="{ 'dark': isDark }" @mousemove="updatePointer($event)" @mouseleave="spotlightActive=false">
+<body x-data="cyberlearn()" x-init="init()" class="min-h-screen">
 
-<!-- Background Effects -->
-<canvas class="particles-canvas" x-ref="particlesCanvas"></canvas>
-<div class="grid-pattern"></div>
-<div class="ambient-glow"></div>
-<div class="mesh-accent"></div>
-<div class="scanline-overlay"></div>
-<div class="noise-overlay"></div>
-<div class="cursor-spotlight" :class="{ 'active': spotlightActive }"></div>
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--                    CONFETTI CANVAS                        -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<canvas x-ref="confettiCanvas" x-show="showConfetti" class="confetti-canvas"></canvas>
 
-<!-- ══════════════════════════════════════════════════════════════════ -->
-<!--  AUTH VIEW                                                         -->
-<!-- ══════════════════════════════════════════════════════════════════ -->
-<div x-show="view === 'auth'" x-cloak class="relative z-10 min-h-screen flex items-center justify-center p-4">
-  <div class="hero-aurora"></div>
-  <span class="floating-cyber-icon" style="top:18%;left:14%;animation-delay:0s;">🛡️</span>
-  <span class="floating-cyber-icon" style="top:24%;right:13%;animation-delay:0.8s;">🔐</span>
-  <span class="floating-cyber-icon" style="bottom:22%;left:10%;animation-delay:1.4s;">⚡</span>
-  <div class="w-full max-w-7xl relative z-10 grid lg:grid-cols-[1.1fr_0.9fr] gap-10 items-center">
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--                      AUTH VIEW                            -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div x-show="view === 'auth'" x-transition:enter="anim-in" class="min-h-screen flex flex-col items-center justify-center px-4 py-8">
 
-    <!-- Left: Hero Panel -->
-    <div class="hidden lg:block glass-card p-8 xl:p-10">
-      <div class="terminal-tag mb-6">// SYSTEM.INIT</div>
-      <div class="text-4xl font-extrabold leading-tight text-surface-900 dark:text-surface-50 mb-4">
-        實戰導向的<br><span class="gradient-text">資安學習地圖</span>
-      </div>
-      <div class="text-base leading-relaxed text-surface-500 dark:text-surface-400 mb-8">
-        從密碼防護、釣魚郵件到社交工程與 2FA，以關卡式方式建立你在真實場景中的防禦思維。
-      </div>
-      <div class="grid grid-cols-2 gap-3 text-sm">
-        <div class="rounded-xl border border-surface-200 dark:border-surface-800 bg-surface-50/80 dark:bg-surface-900/40 p-4">
-          <div class="text-2xl mb-2">🎯</div>
-          <div class="font-bold text-cyan-700 dark:text-cyan-300">5 個核心關卡</div>
-          <div class="text-surface-500 dark:text-surface-400 mt-1 text-xs">由淺入深解鎖</div>
-        </div>
-        <div class="rounded-xl border border-surface-200 dark:border-surface-800 bg-surface-50/80 dark:bg-surface-900/40 p-4">
-          <div class="text-2xl mb-2">🤖</div>
-          <div class="font-bold text-cyan-700 dark:text-cyan-300">情境式說明教學</div>
-          <div class="text-surface-500 dark:text-surface-400 mt-1 text-xs">從陷阱中學知識</div>
-        </div>
-        <div class="rounded-xl border border-surface-200 dark:border-surface-800 bg-surface-50/80 dark:bg-surface-900/40 p-4">
-          <div class="text-2xl mb-2">🏆</div>
-          <div class="font-bold text-cyan-700 dark:text-cyan-300">XP 經驗值系統</div>
-          <div class="text-surface-500 dark:text-surface-400 mt-1 text-xs">挑戰、升級、成長</div>
-        </div>
-        <div class="rounded-xl border border-surface-200 dark:border-surface-800 bg-surface-50/80 dark:bg-surface-900/40 p-4">
-          <div class="text-2xl mb-2">⚔️</div>
-          <div class="font-bold text-cyan-700 dark:text-cyan-300">陷阱式教學</div>
-          <div class="text-surface-500 dark:text-surface-400 mt-1 text-xs">先體驗再學習</div>
-        </div>
-      </div>
+  <!-- Logo + tagline -->
+  <div class="text-center mb-8 anim-up">
+    <div class="flex items-center justify-center gap-3 mb-3">
+      <svg class="w-9 h-9 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <span class="font-display font-800 text-2xl tracking-tight">CyberLearn</span>
     </div>
-
-    <!-- Right: Auth Form -->
-    <div class="w-full max-w-md lg:max-w-lg lg:justify-self-end">
-      <!-- Logo -->
-      <div class="text-center mb-10 opacity-0 animate-entrance">
-        <div class="text-5xl font-black tracking-tight mb-3 gradient-text">
-          CyberLearn
-        </div>
-        <div class="text-sm font-medium text-surface-500 dark:text-surface-400 tracking-wide font-mono">
-          <span x-text="typedHeroText"></span><span class="hero-caret">|</span>
-        </div>
-      </div>
-
-      <!-- Auth card -->
-      <div class="glass-card tilt-card p-8"
-        @mousemove="setTilt($event)" @mouseleave="resetTilt($event)">
-        <div class="flex justify-end mb-4">
-          <button class="theme-toggle" @click="toggleTheme()" aria-label="切換主題">
-            <span class="theme-icon sun">☀</span>
-            <span class="theme-icon moon">☾</span>
-          </button>
-        </div>
-
-        <!-- Tabs -->
-        <div class="flex mb-8 gap-2">
-          <button @click="authTab='login'"
-            :class="authTab==='login' ? 'shimmer-btn flex-1 text-sm' : 'ghost-btn flex-1 text-sm'">
-            登入
-          </button>
-          <button @click="authTab='register'"
-            :class="authTab==='register' ? 'shimmer-btn flex-1 text-sm' : 'ghost-btn flex-1 text-sm'">
-            註冊
-          </button>
-        </div>
-
-        <!-- Login -->
-        <div x-show="authTab==='login'" class="space-y-4">
-          <div>
-            <label class="block text-sm mb-2 font-medium text-surface-500 dark:text-surface-400">暱稱</label>
-            <input class="input-field" type="text" x-model="loginForm.nickname" placeholder="你的暱稱"
-              @keyup.enter="doLogin()"/>
-          </div>
-          <div>
-            <label class="block text-sm mb-2 font-medium text-surface-500 dark:text-surface-400">密碼</label>
-            <div class="relative">
-              <input class="input-field pr-10" :type="showLoginPw ? 'text' : 'password'" x-model="loginForm.password" placeholder="••••••••"
-                @keyup.enter="doLogin()"/>
-              <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-surface-400 bg-transparent border-none cursor-pointer p-0.5"
-                @click="showLoginPw = !showLoginPw" x-text="showLoginPw ? '🙈' : '👁️'" tabindex="-1"></button>
-            </div>
-          </div>
-          <template x-if="authError">
-            <div class="text-sm px-4 py-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 text-red-600 dark:text-red-400" x-text="authError"></div>
-          </template>
-          <button class="shimmer-btn w-full mt-2" @click="doLogin()" :disabled="authLoading">
-            <span x-text="authLoading ? '登入中...' : '進入平台 →'"></span>
-          </button>
-          <div class="text-center mt-3">
-            <button class="text-xs underline text-surface-400 hover:text-cyan-600 dark:hover:text-cyan-300 bg-transparent border-none cursor-pointer transition-colors" @click="authTab='forgot'">忘記密碼？</button>
-          </div>
-        </div>
-
-        <!-- Forgot password -->
-        <div x-show="authTab==='forgot'" class="space-y-4">
-          <template x-if="!forgotCodeSent">
-            <div class="space-y-4">
-              <div>
-                <label class="block text-sm mb-2 font-medium text-surface-500 dark:text-surface-400">綁定的 Email</label>
-                <input class="input-field" type="email" x-model="forgotEmail" placeholder="your@gmail.com"
-                  @keyup.enter="sendResetCode()"/>
-              </div>
-              <template x-if="authError">
-                <div class="text-sm px-4 py-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 text-red-600 dark:text-red-400" x-text="authError"></div>
-              </template>
-              <button class="shimmer-btn w-full" @click="sendResetCode()" :disabled="authLoading">
-                <span x-text="authLoading ? '寄送中...' : '寄送驗證碼'"></span>
-              </button>
-            </div>
-          </template>
-          <template x-if="forgotCodeSent">
-            <div class="space-y-4">
-              <div class="text-sm px-4 py-3 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/40 text-emerald-600 dark:text-emerald-400">
-                驗證碼已寄至 <span x-text="forgotEmail"></span>
-              </div>
-              <div>
-                <label class="block text-sm mb-2 font-medium text-surface-500 dark:text-surface-400">驗證碼（6 碼）</label>
-                <input class="input-field font-mono tracking-widest" type="text" x-model="forgotCode" placeholder="000000" maxlength="6"/>
-              </div>
-              <div>
-                <label class="block text-sm mb-2 font-medium text-surface-500 dark:text-surface-400">新密碼（至少 8 字元）</label>
-                <div class="relative">
-                  <input class="input-field pr-10" :type="showResetPw ? 'text' : 'password'" x-model="forgotNewPw" placeholder="••••••••"/>
-                  <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-surface-400 bg-transparent border-none cursor-pointer p-0.5"
-                    @click="showResetPw = !showResetPw" x-text="showResetPw ? '🙈' : '👁️'" tabindex="-1"></button>
-                </div>
-              </div>
-              <template x-if="authError">
-                <div class="text-sm px-4 py-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 text-red-600 dark:text-red-400" x-text="authError"></div>
-              </template>
-              <button class="shimmer-btn w-full" @click="doResetPassword()" :disabled="authLoading">
-                <span x-text="authLoading ? '重設中...' : '重設密碼'"></span>
-              </button>
-            </div>
-          </template>
-          <div class="text-center mt-3">
-            <button class="text-xs underline text-surface-400 hover:text-cyan-600 dark:hover:text-cyan-300 bg-transparent border-none cursor-pointer transition-colors" @click="authTab='login'; authError=''; forgotCodeSent=false;">← 返回登入</button>
-          </div>
-        </div>
-
-        <!-- Register -->
-        <div x-show="authTab==='register'" class="space-y-4">
-          <div>
-            <label class="block text-sm mb-2 font-medium text-surface-500 dark:text-surface-400">暱稱（2–20 字元）</label>
-            <input class="input-field" type="text" x-model="regForm.nickname" placeholder="幫自己取個代號"
-              @keyup.enter="doRegister()"/>
-          </div>
-          <div>
-            <label class="block text-sm mb-2 font-medium text-surface-500 dark:text-surface-400">密碼（至少 8 字元）</label>
-            <div class="relative">
-              <input class="input-field pr-10" :type="showRegPw ? 'text' : 'password'" x-model="regForm.password"
-                placeholder="••••••••" @input="checkPasswordStrength()"
-                @keyup.enter="doRegister()"/>
-              <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-surface-400 bg-transparent border-none cursor-pointer p-0.5"
-                @click="showRegPw = !showRegPw" x-text="showRegPw ? '🙈' : '👁️'" tabindex="-1"></button>
-            </div>
-            <div x-show="regForm.password.length > 0" class="mt-2">
-              <div class="flex justify-between text-xs mb-1">
-                <span class="text-surface-500 dark:text-surface-400">密碼強度</span>
-                <span :style="`color:${trapStrengthColor}`" x-text="trapStrengthLabel" class="font-bold font-mono"></span>
-              </div>
-              <div class="progress-bar">
-                <div class="progress-fill" :style="`width:${trapStrengthPct}%;background:${trapStrengthColor}`"></div>
-              </div>
-              <div x-show="regForm.password.length >= 6" class="text-xs mt-1 text-surface-400 font-mono">
-                ✓ 密碼符合安全要求
-              </div>
-            </div>
-          </div>
-          <template x-if="authError">
-            <div class="text-sm px-4 py-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 text-red-600 dark:text-red-400" x-text="authError"></div>
-          </template>
-          <button class="shimmer-btn w-full mt-2" @click="doRegister()" :disabled="authLoading">
-            <span x-text="authLoading ? '建立中...' : '建立帳號 →'"></span>
-          </button>
-        </div>
-      </div>
-
-      <div class="text-center mt-6 text-xs text-surface-400 opacity-0 animate-entrance stagger-3 font-mono">
-        🔒 Argon2id 加密 · 零 Email 要求 · 完全匿名
-      </div>
-    </div>
+    <p class="text-txt-muted text-sm">透過情境陷阱學會真正的資安防禦</p>
   </div>
-</div>
 
-<!-- ══════════════════════════════════════════════════════════════════ -->
-<!--  MAP VIEW                                                          -->
-<!-- ══════════════════════════════════════════════════════════════════ -->
-<div x-show="view === 'map'" x-cloak class="relative z-10 min-h-screen">
-  <nav class="floating-nav">
-    <div class="max-w-7xl mx-auto px-4 py-3">
-      <div class="flex items-center justify-between">
-        <div class="text-lg font-black gradient-text tracking-tight">CyberLearn</div>
-        <div class="hidden md:flex items-center justify-end gap-4">
-          <div class="xp-pill" x-text="`⚡ ${user.xp} XP`"></div>
-          <div class="text-sm text-surface-500 dark:text-surface-400">
-            <span class="terminal-tag mr-2" x-text="`Lv.${user.level}`"></span>
-            <span x-text="user.nickname" class="font-medium"></span>
-          </div>
-          <button class="theme-toggle" @click="toggleTheme()" aria-label="切換主題">
-            <span class="theme-icon sun">☀</span>
-            <span class="theme-icon moon">☾</span>
-          </button>
-          <button class="ghost-btn text-xs py-1.5 px-3" @click="logout()">登出</button>
+  <!-- Auth Card -->
+  <div class="card w-full max-w-sm p-6 anim-up d2">
+
+    <!-- Tabs -->
+    <div class="flex gap-1 mb-6 bg-base-100 rounded-lg p-1">
+      <button @click="authTab='register'"
+        :class="authTab==='register' ? 'bg-base-200 text-txt shadow-sm' : 'text-txt-muted'"
+        class="flex-1 py-2 text-sm font-semibold rounded-md transition-all cursor-pointer">註冊</button>
+      <button @click="authTab='login'"
+        :class="authTab==='login' ? 'bg-base-200 text-txt shadow-sm' : 'text-txt-muted'"
+        class="flex-1 py-2 text-sm font-semibold rounded-md transition-all cursor-pointer">登入</button>
+    </div>
+
+    <!-- Error -->
+    <div x-show="authError" x-text="authError" class="text-danger text-sm mb-4 p-3 rounded-lg bg-danger/5 border border-danger/20"></div>
+
+    <!-- Register Form -->
+    <template x-if="authTab==='register'">
+      <form @submit.prevent="doRegister()" class="space-y-4">
+        <div>
+          <label class="text-xs font-semibold text-txt-muted uppercase tracking-wider mb-1.5 block">暱稱</label>
+          <input x-model="regForm.nickname" class="field" placeholder="取一個代號" required>
         </div>
-        <button class="ghost-btn text-xs py-1.5 px-3 md:hidden" @click="mapNavOpen = !mapNavOpen">
-          選單
-        </button>
-      </div>
-      <div class="md:hidden pt-3" x-show="mapNavOpen" x-transition.opacity.scale.origin.top>
-        <div class="glass-card p-4 rounded-xl space-y-3">
-          <div class="xp-pill inline-flex" x-text="`⚡ ${user.xp} XP`"></div>
-          <div class="text-sm text-surface-500 dark:text-surface-400">
-            <span class="terminal-tag mr-2" x-text="`Lv.${user.level}`"></span>
-            <span x-text="user.nickname"></span>
-          </div>
-          <div class="flex items-center justify-between">
-            <button class="theme-toggle" @click="toggleTheme()" aria-label="切換主題">
-              <span class="theme-icon sun">☀</span>
-              <span class="theme-icon moon">☾</span>
+        <div>
+          <label class="text-xs font-semibold text-txt-muted uppercase tracking-wider mb-1.5 block">密碼</label>
+          <div class="relative">
+            <input :type="showRegPw ? 'text' : 'password'" x-model="regForm.password" @input="checkPasswordStrength()" class="field pr-10" placeholder="至少 8 個字元" required>
+            <button type="button" @click="showRegPw=!showRegPw" class="absolute right-3 top-1/2 -translate-y-1/2 text-txt-dim hover:text-txt-muted cursor-pointer">
+              <svg x-show="!showRegPw" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              <svg x-show="showRegPw" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
             </button>
-            <button class="ghost-btn text-xs py-1.5 px-3" @click="logout()">登出</button>
+          </div>
+          <!-- Strength meter -->
+          <div x-show="regForm.password.length > 0" class="mt-2">
+            <div class="progress-track">
+              <div class="progress-fill" :style="`width:${trapStrengthPct}%; background:${trapStrengthColor}`"></div>
+            </div>
+            <span class="text-xs font-mono mt-1 block" :style="`color:${trapStrengthColor}`" x-text="trapStrengthLabel"></span>
           </div>
         </div>
-      </div>
-    </div>
-  </nav>
+        <button type="submit" class="btn-primary w-full" :disabled="authLoading">
+          <span x-show="!authLoading">建立帳號</span>
+          <span x-show="authLoading">處理中…</span>
+        </button>
+      </form>
+    </template>
 
-  <div class="max-w-7xl mx-auto px-4 py-10">
-    <!-- Header -->
-    <div class="mb-10 opacity-0 animate-entrance">
-      <div class="terminal-tag mb-4">// LEARNING_MAP</div>
-      <div class="text-4xl font-black tracking-tight mb-2 text-surface-900 dark:text-surface-50">
-        學習地圖 <span class="inline-block animate-float">🗺️</span>
-      </div>
-      <div class="text-surface-500 dark:text-surface-400 leading-relaxed">完成每一關，解鎖下一個資安知識節點</div>
-    </div>
-
-    <!-- Overall progress -->
-    <div class="glass-card p-5 mb-8 opacity-0 animate-entrance stagger-1">
-      <div class="flex justify-between text-sm mb-3">
-        <span class="text-surface-500 dark:text-surface-400 font-medium">整體進度</span>
-        <span class="font-bold font-mono text-cyan-700 dark:text-cyan-300" x-text="`${user.completed_lessons?.length || 0} / 5 關`"></span>
-      </div>
-      <div class="progress-bar">
-        <div class="progress-fill" :style="`width:${((user.completed_lessons?.length || 0) / 5) * 100}%`"></div>
-      </div>
-    </div>
-
-    <!-- Lesson cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-      <template x-for="(lesson, idx) in lessons" :key="lesson.id">
-        <div class="lesson-card-3d tilt-card"
-          :class="{
-            locked: lesson.locked && !user.completed_lessons?.includes(getPrevLesson(lesson.id)),
-            completed: user.completed_lessons?.includes(lesson.id),
-            'sm:col-span-2 lg:col-span-3': idx === 0
-          }"
-          @mousemove="setTilt($event)"
-          @mouseleave="resetTilt($event)"
-          @click="enterLesson(lesson)">
-          <div class="flex items-center gap-4">
-            <div class="text-4xl flex-shrink-0"
-              x-text="(!lesson.locked || isUnlocked(lesson.id) || user.completed_lessons?.includes(lesson.id)) ? lesson.emoji : `${idx + 1}`"></div>
-            <div class="flex-1">
-              <div class="flex items-center gap-3 mb-1">
-                <div class="font-bold text-lg text-surface-800 dark:text-surface-100"
-                  x-text="(!lesson.locked || isUnlocked(lesson.id) || user.completed_lessons?.includes(lesson.id)) ? lesson.title : `第 ${idx + 1} 關`"></div>
-                <template x-if="user.completed_lessons?.includes(lesson.id)">
-                  <span class="text-xs px-2.5 py-0.5 rounded-full font-bold font-mono bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/40">
-                    ✓ DONE
-                  </span>
-                </template>
-                <template x-if="lesson.locked && !isUnlocked(lesson.id)">
-                  <span class="text-xs px-2.5 py-0.5 rounded-full font-mono bg-surface-100 dark:bg-surface-800 text-surface-400 border border-surface-200 dark:border-surface-700">
-                    🔒 LOCKED
-                  </span>
-                </template>
-              </div>
-              <div class="text-sm text-surface-500 dark:text-surface-400 leading-relaxed"
-                x-text="(!lesson.locked || isUnlocked(lesson.id) || user.completed_lessons?.includes(lesson.id)) ? lesson.subtitle : '完成前一關即可解鎖'"></div>
-            </div>
-            <div class="text-right flex-shrink-0">
-              <div class="text-sm font-bold font-mono text-cyan-700 dark:text-cyan-300"
-                x-text="(!lesson.locked || isUnlocked(lesson.id) || user.completed_lessons?.includes(lesson.id)) ? `+${lesson.xp} XP` : '??? XP'"></div>
-            </div>
+    <!-- Login Form -->
+    <template x-if="authTab==='login'">
+      <form @submit.prevent="doLogin()" class="space-y-4">
+        <div>
+          <label class="text-xs font-semibold text-txt-muted uppercase tracking-wider mb-1.5 block">暱稱</label>
+          <input x-model="loginForm.nickname" class="field" placeholder="你的代號" required>
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-txt-muted uppercase tracking-wider mb-1.5 block">密碼</label>
+          <div class="relative">
+            <input :type="showLoginPw ? 'text' : 'password'" x-model="loginForm.password" class="field pr-10" placeholder="你的密碼" required>
+            <button type="button" @click="showLoginPw=!showLoginPw" class="absolute right-3 top-1/2 -translate-y-1/2 text-txt-dim hover:text-txt-muted cursor-pointer">
+              <svg x-show="!showLoginPw" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              <svg x-show="showLoginPw" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+            </button>
           </div>
         </div>
-      </template>
-    </div>
+        <button type="submit" class="btn-primary w-full" :disabled="authLoading">
+          <span x-show="!authLoading">登入</span>
+          <span x-show="authLoading">處理中…</span>
+        </button>
+        <div class="text-center">
+          <button type="button" @click="authTab='forgot'" class="text-xs text-txt-dim hover:text-accent transition-colors cursor-pointer">忘記密碼？</button>
+        </div>
+      </form>
+    </template>
 
-    <!-- Email binding -->
-    <div class="glass-card p-5 mt-8 opacity-0 animate-entrance" style="animation-delay:0.4s">
-      <div class="font-bold mb-3 text-surface-800 dark:text-surface-100">📧 綁定 Email（忘記密碼時可重設）</div>
-      <template x-if="user.email">
-        <div class="text-sm text-surface-500 dark:text-surface-400">
-          已綁定：<span class="font-semibold font-mono text-cyan-700 dark:text-cyan-300" x-text="user.email"></span>
-        </div>
-      </template>
-      <template x-if="!user.email">
-        <div class="flex flex-col sm:flex-row gap-3">
-          <input class="input-field text-sm flex-1" type="email" x-model="bindEmailInput" placeholder="your@gmail.com"/>
-          <button class="shimmer-btn flex-shrink-0 px-5 text-sm" @click="bindEmail()" :disabled="bindEmailLoading">
-            <span x-text="bindEmailLoading ? '綁定中...' : '綁定'"></span>
-          </button>
-        </div>
-      </template>
-      <template x-if="bindEmailMsg">
-        <div class="text-sm mt-2" :class="bindEmailErr ? 'text-red-500' : 'text-emerald-500'" x-text="bindEmailMsg"></div>
-      </template>
-    </div>
+    <!-- Forgot Password -->
+    <template x-if="authTab==='forgot'">
+      <div class="space-y-4">
+        <template x-if="!forgotCodeSent">
+          <form @submit.prevent="sendResetCode()" class="space-y-4">
+            <div>
+              <label class="text-xs font-semibold text-txt-muted uppercase tracking-wider mb-1.5 block">綁定的 Email</label>
+              <input x-model="forgotEmail" type="email" class="field" placeholder="your@email.com" required>
+            </div>
+            <button type="submit" class="btn-primary w-full" :disabled="authLoading">寄送驗證碼</button>
+          </form>
+        </template>
+        <template x-if="forgotCodeSent">
+          <form @submit.prevent="doResetPassword()" class="space-y-4">
+            <div>
+              <label class="text-xs font-semibold text-txt-muted uppercase tracking-wider mb-1.5 block">驗證碼</label>
+              <input x-model="forgotCode" class="field font-mono text-center tracking-[0.3em]" placeholder="000000" required>
+            </div>
+            <div>
+              <label class="text-xs font-semibold text-txt-muted uppercase tracking-wider mb-1.5 block">新密碼</label>
+              <input :type="showResetPw ? 'text' : 'password'" x-model="forgotNewPw" class="field" placeholder="至少 8 個字元" required>
+            </div>
+            <button type="submit" class="btn-primary w-full" :disabled="authLoading">重設密碼</button>
+          </form>
+        </template>
+        <button @click="authTab='login'; forgotCodeSent=false; forgotEmail=''; forgotCode=''; forgotNewPw='';" class="text-xs text-txt-dim hover:text-accent transition-colors cursor-pointer block mx-auto">← 返回登入</button>
+      </div>
+    </template>
   </div>
+
+  <!-- Footer -->
+  <p class="text-txt-dim text-xs mt-6 anim-up d3">CyberLearn — 情境式互動資安學習平台</p>
 </div>
 
-<!-- ══════════════════════════════════════════════════════════════════ -->
-<!--  LESSON VIEW                                                       -->
-<!-- ══════════════════════════════════════════════════════════════════ -->
-<div x-show="view === 'lesson'" x-cloak class="relative z-10 min-h-screen">
-  <canvas class="confetti-canvas" :class="{ 'active': showConfetti }" x-ref="confettiCanvas"></canvas>
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--                       MAP VIEW                            -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div x-show="view === 'map'" x-transition:enter="anim-in" class="min-h-screen">
 
   <!-- Nav -->
-  <nav class="floating-nav">
-    <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
-      <button class="ghost-btn text-sm py-1.5 px-3" @click="exitLesson()">
-        <span class="mr-1">←</span> 返回地圖
-      </button>
-      <div class="font-bold text-surface-800 dark:text-surface-100" x-text="currentLesson?.title"></div>
-      <div class="xp-pill text-xs" x-text="`⚡ ${user.xp} XP`"></div>
+  <nav class="sticky top-0 z-50 bg-base/80 backdrop-blur-lg border-b border-base-200">
+    <div class="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <svg class="w-6 h-6 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <span class="font-display font-700 text-base tracking-tight">CyberLearn</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="badge badge-active font-mono text-xs" x-text="`Lv.${user.level}`"></span>
+        <div class="relative">
+          <button @click="mapNavOpen = !mapNavOpen" class="flex items-center gap-2 cursor-pointer hover:text-accent transition-colors">
+            <span class="text-sm font-semibold hidden sm:block" x-text="user.nickname"></span>
+            <svg class="w-5 h-5 text-txt-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+          </button>
+          <!-- Dropdown -->
+          <div x-show="mapNavOpen" @click.away="mapNavOpen=false" x-transition
+            class="absolute right-0 top-full mt-2 w-48 card p-2 shadow-xl z-50">
+            <div class="px-3 py-2 border-b border-base-200 mb-1">
+              <div class="font-semibold text-sm" x-text="user.nickname"></div>
+              <div class="text-xs text-txt-muted font-mono" x-text="`${user.xp} XP · Lv.${user.level}`"></div>
+            </div>
+            <button @click="logout()" class="w-full text-left px-3 py-2 text-sm text-danger hover:bg-base-100 rounded-md transition-colors cursor-pointer">登出</button>
+          </div>
+        </div>
+      </div>
     </div>
   </nav>
 
-  <!-- ── TRAP PHASE ── -->
-  <div x-show="lessonPhase === 'trap'" class="max-w-2xl mx-auto px-4 py-10">
-    <template x-if="currentLesson?.id === 'password_strength'">
-      <div>
-        <div class="glass-card p-8 mb-6 opacity-0 animate-entrance">
-          <div class="terminal-tag mb-4">// ACCOUNT_SETUP</div>
-          <div class="text-2xl font-bold mb-2 text-surface-900 dark:text-surface-50 leading-tight">建立你的 CyberLearn 帳號設定</div>
-          <div class="text-sm mb-6 text-surface-500 dark:text-surface-400">請為你的學習帳號設定安全密碼</div>
+  <div class="max-w-3xl mx-auto px-4 pt-6 pb-20">
 
-          <div class="space-y-4">
-            <div>
-              <label class="block text-sm mb-2 font-medium text-surface-500 dark:text-surface-400">電子信箱</label>
-              <input class="input-field" type="email" value="user@example.com" disabled style="opacity:0.5;"/>
-            </div>
-            <div>
-              <label class="block text-sm mb-2 font-medium text-surface-500 dark:text-surface-400">新密碼</label>
-              <input class="input-field" type="password" x-model="trapPassword"
-                @input="updateTrapMeter()" placeholder="輸入你的密碼試試看"/>
-              <div x-show="trapPassword.length > 0" class="mt-3">
-                <div class="flex justify-between text-xs mb-1.5">
-                  <span class="text-surface-500 dark:text-surface-400">密碼強度</span>
-                  <span :style="`color:${trapMeterColor}`" class="font-bold font-mono" x-text="trapMeterLabel"></span>
-                </div>
-                <div class="progress-bar">
-                  <div class="pw-strength-bar" :style="`width:${trapMeterPct}%;background:${trapMeterColor}`"></div>
-                </div>
-              </div>
-            </div>
-            <button class="shimmer-btn w-full mt-2" @click="triggerTrap()"
-              :disabled="trapPassword.length < 4">
-              確認設定
-            </button>
-          </div>
-        </div>
-        <div class="text-center text-sm text-surface-400 opacity-0 animate-entrance stagger-2 font-mono">
-          💡 試試看輸入你常用的密碼類型
-        </div>
-      </div>
-    </template>
-
-    <!-- ── Phishing trap ── -->
-    <template x-if="currentLesson?.id === 'phishing'">
-      <div>
-        <div class="glass-card p-8 mb-6 opacity-0 animate-entrance">
-          <div class="terminal-tag mb-4">// INCOMING_EMAIL</div>
-          <div class="text-2xl font-bold mb-2 text-surface-900 dark:text-surface-50 leading-tight">📧 你收到一封新郵件</div>
-          <div class="text-sm mb-6 text-surface-500 dark:text-surface-400">請檢視這封郵件並決定如何回應</div>
-          <div class="rounded-xl border border-surface-200 dark:border-surface-700 p-5 mb-4" style="background:rgba(241,245,249,0.5);">
-            <div class="text-xs text-surface-400 mb-1 font-mono">From: service@amaz0n-security.com</div>
-            <div class="text-xs text-surface-400 mb-3 font-mono">Subject: ⚠️ 帳號安全警告 — 需要立即驗證</div>
-            <div class="text-sm text-surface-700 dark:text-surface-300 leading-relaxed">
-              <p class="mb-2">親愛的用戶：</p>
-              <p class="mb-2">我們偵測到您的帳號有<strong class="text-red-500">異常登入活動</strong>。為了保護您的帳號安全，請在 <strong>24 小時內</strong>點擊下方連結驗證您的身份，否則帳號將被<strong class="text-red-500">永久停用</strong>。</p>
-              <p class="mb-3 text-xs text-surface-400">此為系統自動發送，請勿回覆。</p>
-            </div>
-          </div>
-          <button class="shimmer-btn w-full mt-2" @click="trapEmailClicked = true; setTimeout(() => triggerTrap(), 800)"
-            :class="trapEmailClicked ? 'opacity-50' : ''">
-            <span x-text="trapEmailClicked ? '正在驗證身份...' : '🔗 立即驗證我的帳號'"></span>
-          </button>
-        </div>
-        <div class="text-center text-sm text-surface-400 opacity-0 animate-entrance stagger-2 font-mono">
-          💡 仔細看看這封信，有沒有什麼不對勁？
-        </div>
-      </div>
-    </template>
-
-    <!-- ── Social Engineering trap ── -->
-    <template x-if="currentLesson?.id === 'social_engineering'">
-      <div>
-        <div class="glass-card p-8 mb-6 opacity-0 animate-entrance">
-          <div class="terminal-tag mb-4">// SOCIAL_SURVEY</div>
-          <div class="text-2xl font-bold mb-2 text-surface-900 dark:text-surface-50 leading-tight">🎁 恭喜你被抽中！</div>
-          <div class="text-sm mb-6 text-surface-500 dark:text-surface-400">完成以下問卷即可獲得 $500 禮物卡（剩餘 3 份）</div>
-          <div class="space-y-4">
-            <div>
-              <label class="block text-sm mb-2 font-medium text-surface-500 dark:text-surface-400">你的生日 🎂</label>
-              <input class="input-field" type="text" x-model="trapInfoGiven.birthday" placeholder="例如：2000/01/15"/>
-            </div>
-            <div>
-              <label class="block text-sm mb-2 font-medium text-surface-500 dark:text-surface-400">就讀/畢業學校 🏫</label>
-              <input class="input-field" type="text" x-model="trapInfoGiven.school" placeholder="例如：台北大學"/>
-            </div>
-            <div>
-              <label class="block text-sm mb-2 font-medium text-surface-500 dark:text-surface-400">寵物名字 🐱（用於身份確認）</label>
-              <input class="input-field" type="text" x-model="trapInfoGiven.pet" placeholder="例如：Mimi"/>
-            </div>
-            <button class="shimmer-btn w-full mt-2" @click="triggerTrap()"
-              :disabled="!trapInfoGiven.birthday && !trapInfoGiven.school && !trapInfoGiven.pet">
-              領取我的禮物卡 🎁
-            </button>
-          </div>
-        </div>
-        <div class="text-center text-sm text-surface-400 opacity-0 animate-entrance stagger-2 font-mono">
-          💡 這些資訊看起來很無害，但⋯⋯
-        </div>
-      </div>
-    </template>
-
-    <!-- ── Public WiFi trap ── -->
-    <template x-if="currentLesson?.id === 'public_wifi'">
-      <div>
-        <div class="glass-card p-8 mb-6 opacity-0 animate-entrance">
-          <div class="terminal-tag mb-4">// WIFI_NETWORKS</div>
-          <div class="text-2xl font-bold mb-2 text-surface-900 dark:text-surface-50 leading-tight">📡 可用的 WiFi 網路</div>
-          <div class="text-sm mb-6 text-surface-500 dark:text-surface-400">你在咖啡廳想上網處理一些事情，請選擇一個網路</div>
-          <div class="space-y-3">
-            <label class="flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition-all"
-              :class="trapWifiSelected === 'cafe_free' ? 'border-cyan-500 bg-cyan-50/50 dark:bg-cyan-950/30' : 'border-surface-200 dark:border-surface-700'"
-              @click="trapWifiSelected = 'cafe_free'">
-              <input type="radio" name="wifi" class="accent-cyan-500" :checked="trapWifiSelected === 'cafe_free'"/>
-              <div><div class="font-bold text-sm">☕ CafeWiFi_Free</div><div class="text-xs text-surface-400">無密碼 · 訊號強</div></div>
-              <div class="ml-auto text-xs text-emerald-500 font-mono">FREE</div>
-            </label>
-            <label class="flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition-all"
-              :class="trapWifiSelected === 'cafe_5g' ? 'border-cyan-500 bg-cyan-50/50 dark:bg-cyan-950/30' : 'border-surface-200 dark:border-surface-700'"
-              @click="trapWifiSelected = 'cafe_5g'">
-              <input type="radio" name="wifi" class="accent-cyan-500" :checked="trapWifiSelected === 'cafe_5g'"/>
-              <div><div class="font-bold text-sm">☕ CafeWiFi_5G_Fast</div><div class="text-xs text-surface-400">無密碼 · 訊號極強</div></div>
-              <div class="ml-auto text-xs text-emerald-500 font-mono">FREE</div>
-            </label>
-            <label class="flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition-all"
-              :class="trapWifiSelected === 'personal' ? 'border-cyan-500 bg-cyan-50/50 dark:bg-cyan-950/30' : 'border-surface-200 dark:border-surface-700'"
-              @click="trapWifiSelected = 'personal'">
-              <input type="radio" name="wifi" class="accent-cyan-500" :checked="trapWifiSelected === 'personal'"/>
-              <div><div class="font-bold text-sm">📱 我的手機熱點</div><div class="text-xs text-surface-400">需密碼 · 使用行動數據</div></div>
-              <div class="ml-auto text-xs text-amber-500 font-mono">DATA</div>
-            </label>
-          </div>
-          <div x-show="trapWifiSelected && trapWifiSelected !== 'personal'" class="mt-4">
-            <div class="text-sm mb-2 text-surface-500 dark:text-surface-400">連線成功！現在你要做什麼？</div>
-            <input class="input-field" type="text" x-model="trapWifiPassword" placeholder="登入網路銀行查看餘額..."/>
-          </div>
-          <button class="shimmer-btn w-full mt-4" @click="triggerTrap()"
-            :disabled="!trapWifiSelected">
-            <span x-text="trapWifiSelected === 'personal' ? '使用手機熱點' : '開始上網'"></span>
-          </button>
-        </div>
-      </div>
-    </template>
-
-    <!-- ── Two Factor trap ── -->
-    <template x-if="currentLesson?.id === 'two_factor'">
-      <div>
-        <div class="glass-card p-8 mb-6 opacity-0 animate-entrance">
-          <div class="terminal-tag mb-4">// LOGIN_SIMULATION</div>
-          <div class="text-2xl font-bold mb-2 text-surface-900 dark:text-surface-50 leading-tight">🔑 模擬登入</div>
-          <div class="text-sm mb-6 text-surface-500 dark:text-surface-400">假設你的密碼是「MyP@ss123」，已經在某次資料外洩中被公開了⋯⋯</div>
-          <div class="rounded-xl border border-red-300 dark:border-red-800 p-5 mb-4" style="background:rgba(254,226,226,0.3);">
-            <div class="text-sm font-bold text-red-600 dark:text-red-400 mb-2">⚠️ 資料外洩通知</div>
-            <div class="text-xs text-surface-600 dark:text-surface-400 font-mono leading-relaxed">
-              <div>Email: user@example.com</div>
-              <div>Password: MyP@ss123</div>
-              <div class="text-red-500 mt-1">已在暗網資料庫中發現</div>
-            </div>
-          </div>
-          <div class="text-sm mb-4 text-surface-700 dark:text-surface-300">如果駭客拿到了你的密碼，他能直接登入你的帳號嗎？</div>
-          <div class="space-y-3">
-            <button class="w-full p-4 rounded-xl border border-surface-200 dark:border-surface-700 text-left transition-all hover:border-red-400"
-              :class="trapPasswordOnly === 'no_2fa' ? 'border-red-400 bg-red-50/50 dark:bg-red-950/20' : ''"
-              @click="trapPasswordOnly = 'no_2fa'">
-              <div class="font-bold text-sm">😰 可以，我沒開 2FA</div>
-              <div class="text-xs text-surface-400 mt-1">只有密碼保護</div>
-            </button>
-            <button class="w-full p-4 rounded-xl border border-surface-200 dark:border-surface-700 text-left transition-all hover:border-emerald-400"
-              :class="trapPasswordOnly === 'has_2fa' ? 'border-emerald-400 bg-emerald-50/50 dark:bg-emerald-950/20' : ''"
-              @click="trapPasswordOnly = 'has_2fa'">
-              <div class="font-bold text-sm">😎 不行，我有開 2FA</div>
-              <div class="text-xs text-surface-400 mt-1">密碼 + 第二道驗證</div>
-            </button>
-          </div>
-          <button class="shimmer-btn w-full mt-4" @click="triggerTrap()"
-            :disabled="!trapPasswordOnly">
-            看看結果 →
-          </button>
-        </div>
-      </div>
-    </template>
-  </div>
-
-  <!-- ── TRAP REVEAL PHASE ── -->
-  <div x-show="lessonPhase === 'trap_reveal'" class="max-w-3xl mx-auto px-4 py-10">
-
-    <!-- === Password Strength reveal === -->
-    <template x-if="currentLesson?.id === 'password_strength'">
-      <div>
-        <div class="glass-card p-8 text-center mb-6 opacity-0 animate-entrance" style="border-color: rgba(251,191,36,0.3);">
-          <div class="text-5xl mb-4 animate-badge-pop">⚠️</div>
-          <div class="text-xl font-bold mb-3 text-amber-600 dark:text-amber-400">等等，真相是⋯⋯</div>
-          <div class="text-base mb-4 text-surface-700 dark:text-surface-300" style="line-height:1.8;">
-            你剛才輸入的密碼「<span class="font-bold font-mono text-red-500 dark:text-red-400" x-text="trapPassword"></span>」，
-            系統顯示它很「強」——<strong class="text-amber-600 dark:text-amber-400">但這其實是個陷阱！</strong>
-          </div>
-          <div class="text-sm text-surface-500 dark:text-surface-400 leading-relaxed max-w-lg mx-auto">
-            現實世界中，很多密碼強度計只看長度和特殊符號，根本不管你的密碼有沒有意義。
-          </div>
-        </div>
-        <div class="glass-card p-6 mb-6 opacity-0 animate-entrance stagger-1 text-left">
-          <div class="text-lg font-bold mb-4 text-cyan-700 dark:text-cyan-300">📖 你需要知道的</div>
-          <div class="space-y-3 text-sm text-surface-700 dark:text-surface-300 leading-relaxed">
-            <div class="flex gap-3"><span class="text-xl flex-shrink-0">🔑</span>
-              <div><strong class="text-surface-800 dark:text-surface-100">字典攻擊</strong>：駭客會用真實名字、寵物名、生日來猜密碼。「Whiskers2005」3 秒就猜到。</div></div>
-            <div class="flex gap-3"><span class="text-xl flex-shrink-0">💪</span>
-              <div><strong class="text-surface-800 dark:text-surface-100">真正的強密碼</strong>：使用隨機字元或密碼管理器產生的長密碼（16+ 字元），不含個人資訊。</div></div>
-            <div class="flex gap-3"><span class="text-xl flex-shrink-0">🛡️</span>
-              <div><strong class="text-surface-800 dark:text-surface-100">最佳做法</strong>：密碼管理器 + 每站不同密碼 + 開啟 2FA。</div></div>
-          </div>
-        </div>
-      </div>
-    </template>
-
-    <!-- === Phishing reveal === -->
-    <template x-if="currentLesson?.id === 'phishing'">
-      <div>
-        <div class="glass-card p-8 text-center mb-6 opacity-0 animate-entrance" style="border-color: rgba(251,191,36,0.3);">
-          <div class="text-5xl mb-4 animate-badge-pop">🎣</div>
-          <div class="text-xl font-bold mb-3 text-amber-600 dark:text-amber-400">你上鉤了！</div>
-          <div class="text-base mb-4 text-surface-700 dark:text-surface-300" style="line-height:1.8;">
-            那封信來自 <span class="font-bold font-mono text-red-500">amaz0n</span>（零，不是 o），是假的！<br/>
-            <strong class="text-amber-600 dark:text-amber-400">你剛才點的連結會把你帶到釣魚網站。</strong>
-          </div>
-        </div>
-        <div class="glass-card p-6 mb-6 opacity-0 animate-entrance stagger-1 text-left">
-          <div class="text-lg font-bold mb-4 text-cyan-700 dark:text-cyan-300">📖 你需要知道的</div>
-          <div class="space-y-3 text-sm text-surface-700 dark:text-surface-300 leading-relaxed">
-            <div class="flex gap-3"><span class="text-xl flex-shrink-0">📧</span>
-              <div><strong class="text-surface-800 dark:text-surface-100">檢查寄件者</strong>：釣魚信會用相似的 Email 地址（amaz0n, g00gle, paypa1），仔細看每個字母。</div></div>
-            <div class="flex gap-3"><span class="text-xl flex-shrink-0">⏰</span>
-              <div><strong class="text-surface-800 dark:text-surface-100">緊急感是陷阱</strong>：「24 小時內停用帳號」——正規公司不會用威脅語氣。遇到時先冷靜。</div></div>
-            <div class="flex gap-3"><span class="text-xl flex-shrink-0">🔗</span>
-              <div><strong class="text-surface-800 dark:text-surface-100">不點郵件連結</strong>：直接打開瀏覽器，自己輸入官方網址（amazon.com）來確認。</div></div>
-          </div>
-        </div>
-      </div>
-    </template>
-
-    <!-- === Social Engineering reveal === -->
-    <template x-if="currentLesson?.id === 'social_engineering'">
-      <div>
-        <div class="glass-card p-8 text-center mb-6 opacity-0 animate-entrance" style="border-color: rgba(251,191,36,0.3);">
-          <div class="text-5xl mb-4 animate-badge-pop">🎭</div>
-          <div class="text-xl font-bold mb-3 text-amber-600 dark:text-amber-400">你剛剛洩漏了個資！</div>
-          <div class="text-base mb-4 text-surface-700 dark:text-surface-300" style="line-height:1.8;">
-            那個「禮物卡問卷」是假的！你提供的<strong class="text-red-500">生日、學校、寵物名字</strong>都是駭客最愛蒐集的資訊——<strong class="text-amber-600 dark:text-amber-400">它們就是你的密碼和安全問題的答案。</strong>
-          </div>
-        </div>
-        <div class="glass-card p-6 mb-6 opacity-0 animate-entrance stagger-1 text-left">
-          <div class="text-lg font-bold mb-4 text-cyan-700 dark:text-cyan-300">📖 你需要知道的</div>
-          <div class="space-y-3 text-sm text-surface-700 dark:text-surface-300 leading-relaxed">
-            <div class="flex gap-3"><span class="text-xl flex-shrink-0">🎭</span>
-              <div><strong class="text-surface-800 dark:text-surface-100">社交工程</strong>：攻擊者不靠技術，而是利用人的信任和貪念來騙取資訊。免費贈品是最常見的餌。</div></div>
-            <div class="flex gap-3"><span class="text-xl flex-shrink-0">🔒</span>
-              <div><strong class="text-surface-800 dark:text-surface-100">個資就是鑰匙</strong>：生日、學校、寵物名 = 密碼提示答案。駭客蒐集後可以重設你的帳號密碼。</div></div>
-            <div class="flex gap-3"><span class="text-xl flex-shrink-0">🛡️</span>
-              <div><strong class="text-surface-800 dark:text-surface-100">防禦方法</strong>：不在來路不明的問卷填真實資訊；社群隱私設定調嚴格；安全問題用假答案。</div></div>
-          </div>
-        </div>
-      </div>
-    </template>
-
-    <!-- === Public WiFi reveal === -->
-    <template x-if="currentLesson?.id === 'public_wifi'">
-      <div>
-        <div class="glass-card p-8 text-center mb-6 opacity-0 animate-entrance" style="border-color: rgba(251,191,36,0.3);">
-          <div class="text-5xl mb-4 animate-badge-pop">📡</div>
-          <div class="text-xl font-bold mb-3 text-amber-600 dark:text-amber-400" x-text="trapWifiSelected === 'personal' ? '做得好！但你知道為什麼嗎？' : '你的資料可能已被攔截！'"></div>
-          <div class="text-base mb-4 text-surface-700 dark:text-surface-300" style="line-height:1.8;" x-show="trapWifiSelected !== 'personal'">
-            你連上的「<span class="font-bold font-mono text-red-500" x-text="trapWifiSelected === 'cafe_free' ? 'CafeWiFi_Free' : 'CafeWiFi_5G_Fast'"></span>」可能是<strong class="text-amber-600 dark:text-amber-400">攻擊者架設的假熱點</strong>，你所有的流量都會經過他。
-          </div>
-          <div class="text-base mb-4 text-surface-700 dark:text-surface-300" style="line-height:1.8;" x-show="trapWifiSelected === 'personal'">
-            使用自己的手機熱點是最安全的選擇！但很多人會貪方便選免費 WiFi——<strong class="text-amber-600 dark:text-amber-400">這正是攻擊者的目標。</strong>
-          </div>
-        </div>
-        <div class="glass-card p-6 mb-6 opacity-0 animate-entrance stagger-1 text-left">
-          <div class="text-lg font-bold mb-4 text-cyan-700 dark:text-cyan-300">📖 你需要知道的</div>
-          <div class="space-y-3 text-sm text-surface-700 dark:text-surface-300 leading-relaxed">
-            <div class="flex gap-3"><span class="text-xl flex-shrink-0">👤</span>
-              <div><strong class="text-surface-800 dark:text-surface-100">中間人攻擊</strong>：攻擊者在你和真正的伺服器之間，可以看到所有未加密的資料。</div></div>
-            <div class="flex gap-3"><span class="text-xl flex-shrink-0">🔐</span>
-              <div><strong class="text-surface-800 dark:text-surface-100">HTTPS 是基本保護</strong>：確認網址有 https:// 和鎖頭圖示，但公共 WiFi 上仍建議加 VPN。</div></div>
-            <div class="flex gap-3"><span class="text-xl flex-shrink-0">📱</span>
-              <div><strong class="text-surface-800 dark:text-surface-100">最佳做法</strong>：優先用手機熱點；必須用公共 WiFi 時開 VPN；不在公共網路登入銀行和重要帳號。</div></div>
-          </div>
-        </div>
-      </div>
-    </template>
-
-    <!-- === Two Factor reveal === -->
-    <template x-if="currentLesson?.id === 'two_factor'">
-      <div>
-        <div class="glass-card p-8 text-center mb-6 opacity-0 animate-entrance" style="border-color: rgba(251,191,36,0.3);">
-          <div class="text-5xl mb-4 animate-badge-pop" x-text="trapPasswordOnly === 'no_2fa' ? '😱' : '✅'"></div>
-          <div class="text-xl font-bold mb-3" :class="trapPasswordOnly === 'no_2fa' ? 'text-red-500' : 'text-emerald-500'" x-text="trapPasswordOnly === 'no_2fa' ? '帳號已被入侵！' : '帳號安全！但⋯⋯'"></div>
-          <div class="text-base mb-4 text-surface-700 dark:text-surface-300" style="line-height:1.8;" x-show="trapPasswordOnly === 'no_2fa'">
-            密碼被外洩又沒開 2FA，駭客<strong class="text-red-500">直接登入</strong>你的帳號。<br/>
-            <strong class="text-amber-600 dark:text-amber-400">你的郵件、照片、個資全部暴露。</strong>
-          </div>
-          <div class="text-base mb-4 text-surface-700 dark:text-surface-300" style="line-height:1.8;" x-show="trapPasswordOnly === 'has_2fa'">
-            有 2FA 保護，即使密碼外洩，駭客<strong class="text-emerald-500">無法登入</strong>！<br/>
-            <strong class="text-amber-600 dark:text-amber-400">但你知道不是所有 2FA 都一樣安全嗎？</strong>
-          </div>
-        </div>
-        <div class="glass-card p-6 mb-6 opacity-0 animate-entrance stagger-1 text-left">
-          <div class="text-lg font-bold mb-4 text-cyan-700 dark:text-cyan-300">📖 你需要知道的</div>
-          <div class="space-y-3 text-sm text-surface-700 dark:text-surface-300 leading-relaxed">
-            <div class="flex gap-3"><span class="text-xl flex-shrink-0">🔑</span>
-              <div><strong class="text-surface-800 dark:text-surface-100">什麼是 2FA</strong>：密碼（你知道的）+ 第二因素（你有的東西，如手機）= 雙重保護。</div></div>
-            <div class="flex gap-3"><span class="text-xl flex-shrink-0">📊</span>
-              <div><strong class="text-surface-800 dark:text-surface-100">安全等級</strong>：硬體金鑰 > TOTP App（如 Google Authenticator）> 簡訊驗證碼 > 沒有 2FA。</div></div>
-            <div class="flex gap-3"><span class="text-xl flex-shrink-0">⚡</span>
-              <div><strong class="text-surface-800 dark:text-surface-100">立刻行動</strong>：去 Google、Apple、Line 帳號設定裡開啟 2FA，這是最划算的安全投資。</div></div>
-          </div>
-        </div>
-      </div>
-    </template>
-
-    <div class="text-center opacity-0 animate-entrance stagger-2">
-      <button class="shimmer-btn px-8 text-base" @click="startQuiz()">
-        我學到了！開始測驗 →
-      </button>
+    <!-- Header -->
+    <div class="mb-8 anim-up">
+      <h1 class="font-display font-800 text-2xl sm:text-3xl mb-1">
+        嗨，<span class="text-accent" x-text="user.nickname"></span>
+      </h1>
+      <p class="text-txt-muted text-sm">準備好提升你的資安防禦力了嗎？</p>
     </div>
-  </div>
 
-  <!-- ── QUIZ PHASE ── -->
-  <div x-show="lessonPhase === 'quiz'" class="max-w-2xl mx-auto px-4 py-8">
-    <div class="glass-card p-6 mb-6 opacity-0 animate-entrance">
-      <div class="flex justify-between items-center mb-6">
-        <div class="font-bold text-lg text-surface-800 dark:text-surface-100">小測驗 📝</div>
-        <div class="terminal-tag">
-          <span x-text="currentQuestionIdx + 1"></span> / <span x-text="quizQuestions.length"></span>
-        </div>
+    <!-- Progress -->
+    <div class="card p-4 mb-8 anim-up d1">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-xs font-semibold text-txt-muted uppercase tracking-wider">學習進度</span>
+        <span class="font-mono text-sm font-semibold text-accent" x-text="`${user.completed_lessons?.length || 0} / ${lessons.length || 5}`"></span>
       </div>
-
-      <!-- Progress -->
-      <div class="progress-bar mb-6">
-        <div class="progress-fill" :style="`width:${((currentQuestionIdx) / quizQuestions.length) * 100}%`"></div>
+      <div class="progress-track">
+        <div class="progress-fill" :style="`width:${((user.completed_lessons?.length || 0) / (lessons.length || 5)) * 100}%`"></div>
       </div>
+      <div class="flex items-center justify-between mt-2">
+        <span class="text-xs text-txt-dim font-mono" x-text="`${user.xp} XP`"></span>
+        <span class="text-xs text-txt-dim" x-text="user.completed_lessons?.length === (lessons.length || 5) ? '🎉 全部完成！' : '繼續加油'"></span>
+      </div>
+    </div>
 
-      <!-- Question -->
-      <template x-if="quizQuestions[currentQuestionIdx]">
-        <div>
-          <div class="text-base font-medium mb-6 leading-relaxed text-surface-800 dark:text-surface-100"
-            x-text="quizQuestions[currentQuestionIdx].question"></div>
+    <!-- Lesson Cards -->
+    <div class="space-y-3 mb-10">
+      <template x-for="(lesson, idx) in lessons" :key="lesson.id">
+        <div class="card interactive anim-up"
+          :class="{
+            locked: lesson.locked && !isUnlocked(lesson.id) && !user.completed_lessons?.includes(lesson.id),
+            completed: user.completed_lessons?.includes(lesson.id)
+          }"
+          :style="`animation-delay:${0.05 * (idx+2)}s`"
+          @click="enterLesson(lesson)">
+          <div class="p-4 flex items-center gap-4">
+            <!-- Step Number -->
+            <div class="step-num"
+              :class="user.completed_lessons?.includes(lesson.id)
+                ? 'bg-ok/15 text-ok-light'
+                : (!lesson.locked || isUnlocked(lesson.id))
+                  ? 'bg-accent/15 text-accent-light'
+                  : 'bg-base-200 text-txt-dim'"
+              x-text="user.completed_lessons?.includes(lesson.id) ? '✓' : `0${idx+1}`"></div>
 
-          <div class="space-y-3 mb-6">
-            <template x-for="(opt, oi) in quizQuestions[currentQuestionIdx].options" :key="oi">
-              <button class="quiz-option"
-                :class="{
-                  correct: quizAnswered && opt.charAt(0) === quizQuestions[currentQuestionIdx].answer,
-                  wrong: quizAnswered && selectedAnswer === opt.charAt(0) && opt.charAt(0) !== quizQuestions[currentQuestionIdx].answer
-                }"
-                @click="submitAnswer(opt.charAt(0))"
-                :disabled="quizAnswered">
-                <span x-text="opt"></span>
-              </button>
-            </template>
-          </div>
-
-          <!-- Explanation -->
-          <div x-show="quizAnswered" class="rounded-xl p-4 mb-4 text-sm"
-            :class="lastAnswerCorrect
-              ? 'bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/40'
-              : 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40'">
-            <div class="font-bold mb-2" :class="lastAnswerCorrect ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500 dark:text-red-400'">
-              <span x-text="lastAnswerCorrect ? '✓ 答對了！' : '✗ 答錯了'"></span>
+            <!-- Content -->
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 mb-0.5">
+                <span class="font-display font-700 text-[15px]"
+                  x-text="(!lesson.locked || isUnlocked(lesson.id) || user.completed_lessons?.includes(lesson.id)) ? lesson.title : `第 ${idx+1} 關`"></span>
+                <template x-if="user.completed_lessons?.includes(lesson.id)">
+                  <span class="badge badge-ok">done</span>
+                </template>
+                <template x-if="lesson.locked && !isUnlocked(lesson.id) && !user.completed_lessons?.includes(lesson.id)">
+                  <span class="badge badge-locked">locked</span>
+                </template>
+              </div>
+              <p class="text-xs text-txt-muted truncate"
+                x-text="(!lesson.locked || isUnlocked(lesson.id) || user.completed_lessons?.includes(lesson.id)) ? lesson.subtitle : '完成前一關即可解鎖'"></p>
             </div>
-            <div class="leading-relaxed text-surface-600 dark:text-surface-300" x-text="quizQuestions[currentQuestionIdx].explanation"></div>
-          </div>
 
-          <div x-show="quizAnswered" class="text-right">
-            <button class="shimmer-btn px-6" @click="nextQuestion()">
-              <span x-text="currentQuestionIdx < quizQuestions.length - 1 ? '下一題 →' : '完成測驗 ✓'"></span>
-            </button>
+            <!-- XP -->
+            <div class="text-right flex-shrink-0">
+              <span class="font-mono text-xs font-semibold"
+                :class="(!lesson.locked || isUnlocked(lesson.id) || user.completed_lessons?.includes(lesson.id)) ? 'text-accent' : 'text-txt-dim'"
+                x-text="(!lesson.locked || isUnlocked(lesson.id) || user.completed_lessons?.includes(lesson.id)) ? `+${lesson.xp}` : '???'"></span>
+              <span class="text-[10px] text-txt-dim ml-0.5">XP</span>
+            </div>
+
+            <!-- Arrow -->
+            <svg class="w-4 h-4 text-txt-dim flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
           </div>
         </div>
       </template>
     </div>
-  </div>
 
-  <!-- ── COMPLETE PHASE ── -->
-  <div x-show="lessonPhase === 'complete'" class="max-w-3xl mx-auto px-4 py-16 text-center">
-    <div class="text-8xl mb-6 animate-badge-pop" x-text="currentLesson?.badge?.split(' ')[0] || '🏅'"></div>
-    <div class="text-3xl font-black tracking-tight mb-3 text-surface-900 dark:text-surface-50">
-      <span x-text="currentLesson?.badge"></span>
-    </div>
-    <div class="text-lg mb-8 text-surface-500 dark:text-surface-400">
-      你完成了「<span x-text="currentLesson?.title" class="font-bold gradient-text"></span>」關卡！
-    </div>
-
-    <!-- Score card -->
-    <div class="glass-card p-6 mb-8 max-w-sm mx-auto">
-      <div class="flex justify-around">
+    <!-- Email Binding -->
+    <div class="card p-4 anim-up d6">
+      <div class="text-xs font-semibold text-txt-muted uppercase tracking-wider mb-3">帳號安全</div>
+      <template x-if="!user.email">
         <div>
-          <div class="text-3xl font-black font-mono text-cyan-700 dark:text-cyan-300" x-text="`${quizScore}/${quizQuestions.length}`"></div>
-          <div class="text-xs mt-1 text-surface-500 dark:text-surface-400">答對題數</div>
+          <p class="text-sm text-txt-muted mb-3">綁定 Email 可用於密碼重設</p>
+          <div class="flex gap-2">
+            <input x-model="bindEmailInput" type="email" class="field flex-1" placeholder="your@email.com">
+            <button @click="bindEmail()" class="btn-primary whitespace-nowrap" :disabled="bindEmailLoading">綁定</button>
+          </div>
+          <div x-show="bindEmailMsg" class="text-xs mt-2" :class="bindEmailErr ? 'text-danger' : 'text-ok'" x-text="bindEmailMsg"></div>
         </div>
-        <div class="w-px bg-surface-200 dark:bg-surface-800"></div>
-        <div>
-          <div class="text-3xl font-black font-mono text-emerald-500" x-text="`+${completionXP}`"></div>
-          <div class="text-xs mt-1 text-surface-500 dark:text-surface-400">獲得 XP</div>
+      </template>
+      <template x-if="user.email">
+        <div class="flex items-center gap-2">
+          <svg class="w-4 h-4 text-ok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          <span class="text-sm text-txt-muted">已綁定：<span class="font-mono text-xs" x-text="user.email"></span></span>
+        </div>
+      </template>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--                     LESSON VIEW                           -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div x-show="view === 'lesson'" x-transition:enter="anim-in" class="min-h-screen">
+
+  <!-- Lesson Nav -->
+  <nav class="sticky top-0 z-50 bg-base/80 backdrop-blur-lg border-b border-base-200">
+    <div class="max-w-2xl mx-auto px-4 h-14 flex items-center gap-4">
+      <button @click="exitLesson()" class="flex items-center gap-1.5 text-txt-muted hover:text-txt transition-colors cursor-pointer">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        <span class="text-sm font-medium hidden sm:inline">返回</span>
+      </button>
+      <div class="flex-1 min-w-0">
+        <div class="font-display font-700 text-sm truncate" x-text="currentLesson?.title || ''"></div>
+      </div>
+      <!-- Phase indicator -->
+      <div class="flex items-center gap-1.5">
+        <div class="w-2 h-2 rounded-full" :class="lessonPhase === 'trap' ? 'bg-accent' : 'bg-ok'"></div>
+        <div class="w-2 h-2 rounded-full" :class="lessonPhase === 'trap_reveal' ? 'bg-accent' : (lessonPhase === 'quiz' || lessonPhase === 'complete') ? 'bg-ok' : 'bg-base-200'"></div>
+        <div class="w-2 h-2 rounded-full" :class="lessonPhase === 'quiz' ? 'bg-accent' : lessonPhase === 'complete' ? 'bg-ok' : 'bg-base-200'"></div>
+        <div class="w-2 h-2 rounded-full" :class="lessonPhase === 'complete' ? 'bg-ok' : 'bg-base-200'"></div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="max-w-2xl mx-auto px-4 py-8">
+
+    <!-- ── TRAP PHASE ── -->
+    <div x-show="lessonPhase === 'trap'">
+
+      <!-- Password Strength Trap -->
+      <template x-if="currentLesson?.id === 'password_strength'">
+        <div class="anim-up">
+          <div class="scenario-box mb-6">
+            <div class="text-xs font-mono text-accent mb-3 uppercase tracking-wider">情境模擬</div>
+            <h2 class="font-display font-700 text-lg mb-2">建立你的新帳號密碼</h2>
+            <p class="text-sm text-txt-muted mb-5">某網站要求你設定密碼。請輸入你平常會用的密碼：</p>
+            <input x-model="trapPassword" @input="updateTrapMeter()" type="text" class="field font-mono mb-3" placeholder="輸入密碼…">
+            <div x-show="trapPassword.length > 0">
+              <div class="progress-track mb-1">
+                <div class="h-full rounded-full transition-all duration-300" :style="`width:${trapMeterPct}%; background:${trapMeterColor}`"></div>
+              </div>
+              <span class="text-xs font-mono" :style="`color:${trapMeterColor}`" x-text="trapMeterLabel"></span>
+            </div>
+          </div>
+          <button class="btn-primary w-full" @click="triggerTrap()" :disabled="!trapPassword || trapPassword.length < 4">
+            確認密碼
+          </button>
+        </div>
+      </template>
+
+      <!-- Phishing Trap -->
+      <template x-if="currentLesson?.id === 'phishing'">
+        <div class="anim-up">
+          <div class="scenario-box mb-6">
+            <div class="text-xs font-mono text-accent mb-3 uppercase tracking-wider">收件匣</div>
+            <div class="card p-4 mb-4" style="border-color: rgba(239,68,68,0.2);">
+              <div class="flex items-center gap-3 mb-3">
+                <div class="w-8 h-8 rounded-full bg-danger/20 flex items-center justify-center text-xs font-bold text-danger">A</div>
+                <div class="flex-1 min-w-0">
+                  <div class="font-semibold text-sm">Amazon 安全中心</div>
+                  <div class="text-xs text-txt-dim font-mono truncate">service@amaz0n-security.com</div>
+                </div>
+                <span class="badge badge-locked text-[10px]">urgent</span>
+              </div>
+              <p class="text-sm text-txt-muted leading-relaxed mb-3">親愛的用戶，我們偵測到您的帳號有異常登入行為。為保護您的帳戶安全，請在 <strong class="text-danger">24 小時內</strong>點擊下方連結驗證身份，否則帳號將被永久停用。</p>
+              <button class="btn-primary w-full text-sm" @click="trapEmailClicked = true; setTimeout(() => triggerTrap(), 600)">
+                <span x-show="!trapEmailClicked">立即驗證我的帳號</span>
+                <span x-show="trapEmailClicked">載入中…</span>
+              </button>
+            </div>
+            <p class="text-xs text-txt-dim text-center">這封信看起來很緊急，你會怎麼處理？</p>
+          </div>
+        </div>
+      </template>
+
+      <!-- Social Engineering Trap -->
+      <template x-if="currentLesson?.id === 'social_engineering'">
+        <div class="anim-up">
+          <div class="scenario-box mb-6">
+            <div class="text-xs font-mono text-accent mb-3 uppercase tracking-wider">線上問卷</div>
+            <div class="card p-4 mb-4">
+              <div class="text-center mb-4">
+                <div class="text-2xl mb-1">🎁</div>
+                <div class="font-display font-700 text-base">恭喜！你被選中獲得 $1000 禮物卡</div>
+                <p class="text-xs text-txt-muted mt-1">只需回答 3 個簡單問題即可領取</p>
+              </div>
+              <div class="space-y-3">
+                <div>
+                  <label class="text-xs text-txt-muted mb-1 block">你的生日是？</label>
+                  <input x-model="trapInfoGiven.birthday" type="date" class="field text-sm">
+                </div>
+                <div>
+                  <label class="text-xs text-txt-muted mb-1 block">你的母校名稱？</label>
+                  <input x-model="trapInfoGiven.school" class="field text-sm" placeholder="例：XX 高中">
+                </div>
+                <div>
+                  <label class="text-xs text-txt-muted mb-1 block">你的寵物名字？</label>
+                  <input x-model="trapInfoGiven.pet" class="field text-sm" placeholder="例：小黑">
+                </div>
+              </div>
+            </div>
+            <button class="btn-primary w-full" @click="triggerTrap()">提交領取禮物卡</button>
+          </div>
+        </div>
+      </template>
+
+      <!-- Public WiFi Trap -->
+      <template x-if="currentLesson?.id === 'public_wifi'">
+        <div class="anim-up">
+          <div class="scenario-box mb-6">
+            <div class="text-xs font-mono text-accent mb-3 uppercase tracking-wider">WiFi 設定</div>
+            <h2 class="font-display font-700 text-lg mb-2">你在咖啡廳需要上網</h2>
+            <p class="text-sm text-txt-muted mb-5">以下是偵測到的 WiFi 網路，選一個連線：</p>
+            <div class="space-y-2">
+              <div @click="trapWifiSelected='cafe_free'"
+                class="option-card" :class="trapWifiSelected==='cafe_free' ? 'border-accent !bg-accent/5' : ''">
+                <div class="flex-1">
+                  <div class="font-semibold text-sm">CafeWiFi_Free</div>
+                  <div class="text-xs text-txt-dim">免費 · 無需密碼 · 訊號強</div>
+                </div>
+                <svg class="w-5 h-5 text-ok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0114.08 0M1.42 9a16 16 0 0121.16 0M8.53 16.11a6 6 0 016.95 0M12 20h.01"/></svg>
+              </div>
+              <div @click="trapWifiSelected='cafe_5g'"
+                class="option-card" :class="trapWifiSelected==='cafe_5g' ? 'border-accent !bg-accent/5' : ''">
+                <div class="flex-1">
+                  <div class="font-semibold text-sm">CafeWiFi_5G_Fast</div>
+                  <div class="text-xs text-txt-dim">免費 · 無需密碼 · 超高速</div>
+                </div>
+                <svg class="w-5 h-5 text-ok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0114.08 0M1.42 9a16 16 0 0121.16 0M8.53 16.11a6 6 0 016.95 0M12 20h.01"/></svg>
+              </div>
+              <div @click="trapWifiSelected='personal'"
+                class="option-card" :class="trapWifiSelected==='personal' ? 'border-accent !bg-accent/5' : ''">
+                <div class="flex-1">
+                  <div class="font-semibold text-sm">使用自己的手機熱點</div>
+                  <div class="text-xs text-txt-dim">你的 4G/5G · 需要流量</div>
+                </div>
+                <svg class="w-5 h-5 text-txt-dim" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+              </div>
+            </div>
+          </div>
+          <button class="btn-primary w-full" @click="triggerTrap()" :disabled="!trapWifiSelected">連線</button>
+        </div>
+      </template>
+
+      <!-- Two Factor Trap -->
+      <template x-if="currentLesson?.id === 'two_factor'">
+        <div class="anim-up">
+          <div class="scenario-box mb-6">
+            <div class="text-xs font-mono text-danger mb-3 uppercase tracking-wider flex items-center gap-2">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              安全警報
+            </div>
+            <h2 class="font-display font-700 text-lg mb-2">密碼外洩通知</h2>
+            <p class="text-sm text-txt-muted mb-5">你的密碼出現在最新的資料外洩名單中。<br>以下是你的帳號目前的保護狀態：</p>
+            <div class="space-y-2">
+              <div @click="trapPasswordOnly='no_2fa'"
+                class="option-card" :class="trapPasswordOnly==='no_2fa' ? 'border-danger !bg-danger/5' : ''">
+                <div class="step-num bg-danger/15 text-danger text-xs">A</div>
+                <div>
+                  <div class="font-semibold text-sm">只有密碼保護</div>
+                  <div class="text-xs text-txt-dim">沒有額外的安全措施</div>
+                </div>
+              </div>
+              <div @click="trapPasswordOnly='has_2fa'"
+                class="option-card" :class="trapPasswordOnly==='has_2fa' ? 'border-ok !bg-ok/5' : ''">
+                <div class="step-num bg-ok/15 text-ok text-xs">B</div>
+                <div>
+                  <div class="font-semibold text-sm">密碼 + 手機驗證碼</div>
+                  <div class="text-xs text-txt-dim">開啟了雙因素驗證 (2FA)</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p class="text-xs text-txt-dim text-center mb-4">選擇你目前帳號的保護方式</p>
+          <button class="btn-primary w-full" @click="triggerTrap()" :disabled="!trapPasswordOnly">查看結果</button>
+        </div>
+      </template>
+    </div>
+
+    <!-- ── TRAP REVEAL PHASE ── -->
+    <div x-show="lessonPhase === 'trap_reveal'">
+
+      <!-- Password Strength -->
+      <template x-if="currentLesson?.id === 'password_strength'">
+        <div class="anim-up">
+          <div class="reveal-alert mb-6">
+            <div class="text-3xl mb-3">⚠️</div>
+            <h3 class="font-display font-800 text-lg text-accent mb-2">你被騙了！</h3>
+            <p class="text-sm text-txt-muted leading-relaxed">
+              你的密碼「<span class="font-mono text-danger font-semibold" x-text="trapPassword"></span>」被系統標記為「強」——<strong class="text-accent">但這其實是個陷阱</strong>。真實世界的密碼強度計很多只看長度和符號，不管密碼是否容易被猜到。
+            </p>
+          </div>
+          <div class="know-card mb-6 anim-up d1">
+            <div class="font-display font-700 text-sm text-info mb-3 flex items-center gap-2">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+              你需要知道的
+            </div>
+            <div class="space-y-3 text-sm text-txt-muted">
+              <div class="flex gap-3"><span class="font-mono text-accent text-xs mt-0.5">01</span><div><strong class="text-txt">字典攻擊</strong>：駭客用真實名字、寵物名、生日猜密碼。「Whiskers2005」3 秒就猜到。</div></div>
+              <div class="flex gap-3"><span class="font-mono text-accent text-xs mt-0.5">02</span><div><strong class="text-txt">真正的強密碼</strong>：用密碼管理器產生 16+ 字元的隨機密碼，不含個人資訊。</div></div>
+              <div class="flex gap-3"><span class="font-mono text-accent text-xs mt-0.5">03</span><div><strong class="text-txt">最佳做法</strong>：密碼管理器 + 每站不同密碼 + 開啟 2FA。</div></div>
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <!-- Phishing -->
+      <template x-if="currentLesson?.id === 'phishing'">
+        <div class="anim-up">
+          <div class="reveal-alert mb-6">
+            <div class="text-3xl mb-3">🎣</div>
+            <h3 class="font-display font-800 text-lg text-accent mb-2">你上鉤了！</h3>
+            <p class="text-sm text-txt-muted leading-relaxed">
+              寄件者是 <span class="font-mono text-danger font-semibold">amaz0n</span>（零不是 o）——這是釣魚郵件！<strong class="text-accent">你點的連結會帶你到假網站竊取帳密。</strong>
+            </p>
+          </div>
+          <div class="know-card mb-6 anim-up d1">
+            <div class="font-display font-700 text-sm text-info mb-3 flex items-center gap-2">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+              你需要知道的
+            </div>
+            <div class="space-y-3 text-sm text-txt-muted">
+              <div class="flex gap-3"><span class="font-mono text-accent text-xs mt-0.5">01</span><div><strong class="text-txt">檢查寄件者</strong>：釣魚信用相似地址（amaz0n, g00gle, paypa1），仔細看每個字母。</div></div>
+              <div class="flex gap-3"><span class="font-mono text-accent text-xs mt-0.5">02</span><div><strong class="text-txt">緊急感是陷阱</strong>：「24 小時內停用」——正規公司不會用威脅語氣。</div></div>
+              <div class="flex gap-3"><span class="font-mono text-accent text-xs mt-0.5">03</span><div><strong class="text-txt">不點郵件連結</strong>：直接打開瀏覽器輸入官方網址確認。</div></div>
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <!-- Social Engineering -->
+      <template x-if="currentLesson?.id === 'social_engineering'">
+        <div class="anim-up">
+          <div class="reveal-alert mb-6">
+            <div class="text-3xl mb-3">🎭</div>
+            <h3 class="font-display font-800 text-lg text-accent mb-2">你洩漏了個資！</h3>
+            <p class="text-sm text-txt-muted leading-relaxed">
+              那個「禮物卡問卷」是假的！你提供的<strong class="text-danger">生日、學校、寵物名字</strong>正是密碼安全問題的答案——<strong class="text-accent">駭客可以用它們重設你的帳號。</strong>
+            </p>
+          </div>
+          <div class="know-card mb-6 anim-up d1">
+            <div class="font-display font-700 text-sm text-info mb-3 flex items-center gap-2">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+              你需要知道的
+            </div>
+            <div class="space-y-3 text-sm text-txt-muted">
+              <div class="flex gap-3"><span class="font-mono text-accent text-xs mt-0.5">01</span><div><strong class="text-txt">社交工程</strong>：攻擊者利用信任和貪念騙取資訊，免費贈品是最常見的餌。</div></div>
+              <div class="flex gap-3"><span class="font-mono text-accent text-xs mt-0.5">02</span><div><strong class="text-txt">個資就是鑰匙</strong>：生日 + 學校 + 寵物名 = 密碼提示答案。</div></div>
+              <div class="flex gap-3"><span class="font-mono text-accent text-xs mt-0.5">03</span><div><strong class="text-txt">防禦方法</strong>：不在來路不明的問卷填真實資訊，安全問題用假答案。</div></div>
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <!-- Public WiFi -->
+      <template x-if="currentLesson?.id === 'public_wifi'">
+        <div class="anim-up">
+          <div class="reveal-alert mb-6">
+            <div class="text-3xl mb-3">📡</div>
+            <h3 class="font-display font-800 text-lg mb-2" :class="trapWifiSelected === 'personal' ? 'text-ok' : 'text-accent'"
+              x-text="trapWifiSelected === 'personal' ? '做得好！' : '你的資料可能被攔截！'"></h3>
+            <p class="text-sm text-txt-muted leading-relaxed" x-show="trapWifiSelected !== 'personal'">
+              你連上的 WiFi 可能是<strong class="text-accent">攻擊者架設的假熱點</strong>，所有流量都會經過他。
+            </p>
+            <p class="text-sm text-txt-muted leading-relaxed" x-show="trapWifiSelected === 'personal'">
+              使用自己的手機熱點是最安全的選擇！但很多人會選免費 WiFi——<strong class="text-accent">那正是攻擊者的目標。</strong>
+            </p>
+          </div>
+          <div class="know-card mb-6 anim-up d1">
+            <div class="font-display font-700 text-sm text-info mb-3 flex items-center gap-2">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+              你需要知道的
+            </div>
+            <div class="space-y-3 text-sm text-txt-muted">
+              <div class="flex gap-3"><span class="font-mono text-accent text-xs mt-0.5">01</span><div><strong class="text-txt">中間人攻擊</strong>：攻擊者在你和伺服器之間，看到所有未加密的資料。</div></div>
+              <div class="flex gap-3"><span class="font-mono text-accent text-xs mt-0.5">02</span><div><strong class="text-txt">HTTPS 是基本保護</strong>：確認網址有 https:// 和鎖頭，公共 WiFi 上建議加 VPN。</div></div>
+              <div class="flex gap-3"><span class="font-mono text-accent text-xs mt-0.5">03</span><div><strong class="text-txt">最佳做法</strong>：優先用手機熱點，必須用公共 WiFi 時開 VPN。</div></div>
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <!-- Two Factor -->
+      <template x-if="currentLesson?.id === 'two_factor'">
+        <div class="anim-up">
+          <div class="reveal-alert mb-6">
+            <div class="text-3xl mb-3" x-text="trapPasswordOnly === 'no_2fa' ? '😱' : '✅'"></div>
+            <h3 class="font-display font-800 text-lg mb-2"
+              :class="trapPasswordOnly === 'no_2fa' ? 'text-danger' : 'text-ok'"
+              x-text="trapPasswordOnly === 'no_2fa' ? '帳號已被入侵！' : '帳號安全！但⋯⋯'"></h3>
+            <p class="text-sm text-txt-muted leading-relaxed" x-show="trapPasswordOnly === 'no_2fa'">
+              密碼外洩 + 沒有 2FA = 駭客<strong class="text-danger">直接登入</strong>你的帳號。郵件、照片、個資全暴露。
+            </p>
+            <p class="text-sm text-txt-muted leading-relaxed" x-show="trapPasswordOnly === 'has_2fa'">
+              有 2FA 保護，即使密碼外洩駭客也<strong class="text-ok">無法登入</strong>！<strong class="text-accent">但不是所有 2FA 都一樣安全。</strong>
+            </p>
+          </div>
+          <div class="know-card mb-6 anim-up d1">
+            <div class="font-display font-700 text-sm text-info mb-3 flex items-center gap-2">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+              你需要知道的
+            </div>
+            <div class="space-y-3 text-sm text-txt-muted">
+              <div class="flex gap-3"><span class="font-mono text-accent text-xs mt-0.5">01</span><div><strong class="text-txt">什麼是 2FA</strong>：密碼（你知道的）+ 第二因素（你有的東西）= 雙重保護。</div></div>
+              <div class="flex gap-3"><span class="font-mono text-accent text-xs mt-0.5">02</span><div><strong class="text-txt">安全等級</strong>：硬體金鑰 > TOTP App > 簡訊驗證碼 > 沒有 2FA。</div></div>
+              <div class="flex gap-3"><span class="font-mono text-accent text-xs mt-0.5">03</span><div><strong class="text-txt">立刻行動</strong>：去 Google、Apple、Line 帳號設定裡開啟 2FA。</div></div>
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <button class="btn-primary w-full anim-up d2" @click="startQuiz()">
+        我學到了，開始測驗 →
+      </button>
+    </div>
+
+    <!-- ── QUIZ PHASE ── -->
+    <div x-show="lessonPhase === 'quiz'">
+      <div class="anim-up">
+        <!-- Quiz header -->
+        <div class="flex items-center justify-between mb-6">
+          <span class="text-xs font-mono text-txt-muted" x-text="`Question ${currentQuestionIdx + 1} / ${quizQuestions.length}`"></span>
+          <span class="badge badge-info" x-text="`${quizScore} 分`"></span>
+        </div>
+
+        <!-- Progress dots -->
+        <div class="flex gap-1.5 mb-6">
+          <template x-for="(q, qi) in quizQuestions" :key="qi">
+            <div class="h-1 flex-1 rounded-full transition-all duration-300"
+              :class="qi < currentQuestionIdx ? 'bg-ok' : qi === currentQuestionIdx ? 'bg-accent' : 'bg-base-200'"></div>
+          </template>
+        </div>
+
+        <!-- Question -->
+        <div class="mb-6">
+          <h3 class="font-display font-700 text-base leading-relaxed" x-text="quizQuestions[currentQuestionIdx]?.question"></h3>
+        </div>
+
+        <!-- Options -->
+        <div class="space-y-2.5 mb-6">
+          <template x-for="opt in (quizQuestions[currentQuestionIdx]?.options || [])" :key="opt">
+            <div @click="submitAnswer(opt.charAt(0))"
+              class="option-card"
+              :class="{
+                'answered pointer-events-none': quizAnswered,
+                'selected-correct': quizAnswered && opt.charAt(0) === quizQuestions[currentQuestionIdx]?.answer && selectedAnswer === opt.charAt(0),
+                'selected-wrong': quizAnswered && opt.charAt(0) !== quizQuestions[currentQuestionIdx]?.answer && selectedAnswer === opt.charAt(0),
+                'revealed-correct': quizAnswered && opt.charAt(0) === quizQuestions[currentQuestionIdx]?.answer && selectedAnswer !== opt.charAt(0),
+              }">
+              <div class="opt-letter" x-text="opt.charAt(0)"></div>
+              <div class="text-sm flex-1 pt-0.5" x-text="opt.substring(3)"></div>
+            </div>
+          </template>
+        </div>
+
+        <!-- Answer Feedback -->
+        <div x-show="quizAnswered" class="anim-up">
+          <div class="card p-4 mb-4" :class="lastAnswerCorrect ? 'border-ok/30' : 'border-danger/30'">
+            <div class="flex items-center gap-2 mb-2">
+              <template x-if="lastAnswerCorrect">
+                <div class="flex items-center gap-2">
+                  <svg class="w-5 h-5 text-ok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                  <span class="font-display font-700 text-sm text-ok">正確！</span>
+                </div>
+              </template>
+              <template x-if="!lastAnswerCorrect">
+                <div class="flex items-center gap-2">
+                  <svg class="w-5 h-5 text-danger" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  <span class="font-display font-700 text-sm text-danger">不對喔</span>
+                </div>
+              </template>
+            </div>
+            <p class="text-xs text-txt-muted leading-relaxed" x-text="quizQuestions[currentQuestionIdx]?.explanation"></p>
+          </div>
+          <button class="btn-primary w-full" @click="nextQuestion()"
+            x-text="currentQuestionIdx < quizQuestions.length - 1 ? '下一題 →' : '查看結果'"></button>
         </div>
       </div>
     </div>
 
-    <div x-show="quizScore === quizQuestions.length" class="mb-6 text-sm text-emerald-500 font-medium font-mono">
-      🎯 PERFECT SCORE — 太厲害了！
-    </div>
-    <div x-show="quizScore < quizQuestions.length && quizScore > 0" class="mb-6 text-sm text-amber-500 font-medium">
-      繼續練習，下次一定能全對！
+    <!-- ── COMPLETE PHASE ── -->
+    <div x-show="lessonPhase === 'complete'">
+      <div class="text-center py-10 anim-up">
+        <div class="text-5xl mb-4">🎉</div>
+        <h2 class="font-display font-800 text-2xl mb-2">關卡完成！</h2>
+        <p class="text-txt-muted mb-2" x-text="`你答對了 ${quizScore} / ${quizQuestions.length} 題`"></p>
+        <div class="flex items-center justify-center gap-4 mb-8">
+          <span class="badge badge-active text-sm" x-text="`+${completionXP} XP`"></span>
+          <span class="badge badge-ok text-sm" x-text="currentLesson?.badge || '🏅 徽章'"></span>
+        </div>
+        <button class="btn-primary px-8" @click="exitLesson()">返回地圖</button>
+      </div>
     </div>
 
-    <button class="shimmer-btn px-10 text-lg" @click="exitLesson()">
-      返回學習地圖 →
-    </button>
   </div>
 </div>
 
-
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--                      ALPINE.JS                            -->
+<!-- ══════════════════════════════════════════════════════════ -->
 <script>
 function cyberlearn() {
   return {
-    // ── State ──
     view: 'auth',
     authTab: 'register',
     authLoading: false,
     authError: '',
     isDark: true,
-    typedHeroText: '',
-    heroText: '情境式互動資安學習平台',
     mapNavOpen: false,
-
-    // Auth forms
     loginForm: { nickname: '', password: '' },
     regForm: { nickname: '', password: '' },
     showLoginPw: false,
     showRegPw: false,
-
-    // Fake strength meter for registration (trap!)
+    showResetPw: false,
     trapStrengthPct: 0,
     trapStrengthLabel: '',
     trapStrengthColor: '',
-
-    // User
     user: { id: null, nickname: '', xp: 0, level: 1, completed_lessons: [], email: '' },
-
-    // Email binding
     bindEmailInput: '',
     bindEmailLoading: false,
     bindEmailMsg: '',
     bindEmailErr: false,
-
-    // Forgot password
     forgotEmail: '',
     forgotCode: '',
     forgotNewPw: '',
     forgotCodeSent: false,
-    showResetPw: false,
-
-    // Lessons
     lessons: [],
-
-    // Current lesson
     currentLesson: null,
     lessonPhase: 'trap',
-
-    // Trap (shared)
     trapPassword: '',
     trapMeterPct: 0,
     trapMeterLabel: '',
     trapMeterColor: '',
-    // Trap: phishing
     trapEmailClicked: false,
-    // Trap: social engineering
     trapInfoGiven: { birthday: '', school: '', pet: '' },
-    // Trap: public wifi
     trapWifiSelected: '',
     trapWifiPassword: '',
-    // Trap: two factor
     trapPasswordOnly: '',
-
-        // Quiz
     quizQuestions: [],
     currentQuestionIdx: 0,
     selectedAnswer: '',
@@ -1445,31 +955,10 @@ function cyberlearn() {
     quizScore: 0,
     completionXP: 0,
     showConfetti: false,
-
-    // PRO MAX visuals
-    spotlightActive: false,
-    particleCtx: null,
-    particleFrame: null,
-    particles: [],
-    particleResizeHandler: null,
     confettiFrame: null,
 
-    // ── Init ──
     async init() {
-      this.sessionId = crypto.randomUUID();
-      this.startHeroTyping();
-      // Restore theme preference
-      const savedTheme = localStorage.getItem('cyberlearn_theme');
-      if (savedTheme) {
-        this.isDark = savedTheme === 'dark';
-      } else {
-        this.isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      }
-      this.applyTheme();
-      this.initParticles();
-      this.particleResizeHandler = () => this.resizeParticlesCanvas();
-      window.addEventListener('resize', this.particleResizeHandler);
-
+      document.documentElement.classList.add('dark');
       const saved = localStorage.getItem('cyberlearn_user');
       if (saved) {
         try {
@@ -1492,176 +981,6 @@ function cyberlearn() {
       }
     },
 
-    // ── Theme ──
-    toggleTheme() {
-      this.isDark = !this.isDark;
-      localStorage.setItem('cyberlearn_theme', this.isDark ? 'dark' : 'light');
-      this.applyTheme();
-    },
-
-    applyTheme() {
-      if (this.isDark) {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-    },
-
-    startHeroTyping() {
-      this.typedHeroText = '';
-      let idx = 0;
-      const tick = () => {
-        if (idx >= this.heroText.length) return;
-        this.typedHeroText = this.heroText.slice(0, idx + 1);
-        idx++;
-        setTimeout(tick, 55);
-      };
-      tick();
-    },
-
-    updatePointer(event) {
-      this.spotlightActive = true;
-      document.documentElement.style.setProperty('--pointer-x', `${event.clientX}px`);
-      document.documentElement.style.setProperty('--pointer-y', `${event.clientY}px`);
-    },
-
-    setTilt(event) {
-      const el = event.currentTarget;
-      if (!el || el.classList.contains('locked')) return;
-      const rect = el.getBoundingClientRect();
-      const px = (event.clientX - rect.left) / rect.width;
-      const py = (event.clientY - rect.top) / rect.height;
-      const rx = (0.5 - py) * 8;
-      const ry = (px - 0.5) * 10;
-      el.style.setProperty('--tilt-x', `${rx.toFixed(2)}deg`);
-      el.style.setProperty('--tilt-y', `${ry.toFixed(2)}deg`);
-      el.style.setProperty('--spot-x', `${(px * 100).toFixed(1)}%`);
-      el.style.setProperty('--spot-y', `${(py * 100).toFixed(1)}%`);
-    },
-
-    resetTilt(event) {
-      const el = event.currentTarget;
-      if (!el) return;
-      el.style.setProperty('--tilt-x', '0deg');
-      el.style.setProperty('--tilt-y', '0deg');
-      el.style.setProperty('--spot-x', '50%');
-      el.style.setProperty('--spot-y', '40%');
-    },
-
-    initParticles() {
-      const canvas = this.$refs.particlesCanvas;
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-      this.particleCtx = ctx;
-      this.resizeParticlesCanvas();
-      const total = Math.min(100, Math.max(50, Math.floor((window.innerWidth * window.innerHeight) / 24000)));
-      this.particles = Array.from({ length: total }, () => ({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        vx: (Math.random() - 0.5) * 0.4,
-        vy: (Math.random() - 0.5) * 0.4,
-        r: Math.random() * 1.6 + 0.6,
-      }));
-      if (this.particleFrame) cancelAnimationFrame(this.particleFrame);
-      const animate = () => {
-        const w = canvas.width;
-        const h = canvas.height;
-        const dark = this.isDark || document.documentElement.classList.contains('dark');
-        ctx.clearRect(0, 0, w, h);
-        for (const p of this.particles) {
-          p.x += p.vx;
-          p.y += p.vy;
-          if (p.x < 0) p.x = w;
-          if (p.x > w) p.x = 0;
-          if (p.y < 0) p.y = h;
-          if (p.y > h) p.y = 0;
-        }
-        for (let i = 0; i < this.particles.length; i++) {
-          const p1 = this.particles[i];
-          for (let j = i + 1; j < this.particles.length; j++) {
-            const p2 = this.particles[j];
-            const dx = p1.x - p2.x;
-            const dy = p1.y - p2.y;
-            const dist = Math.hypot(dx, dy);
-            if (dist < 130) {
-              const alpha = (1 - dist / 130) * (dark ? 0.22 : 0.12);
-              ctx.strokeStyle = `rgba(34,211,238,${alpha})`;
-              ctx.lineWidth = 1;
-              ctx.beginPath();
-              ctx.moveTo(p1.x, p1.y);
-              ctx.lineTo(p2.x, p2.y);
-              ctx.stroke();
-            }
-          }
-        }
-        for (const p of this.particles) {
-          ctx.fillStyle = dark ? 'rgba(34,211,238,0.6)' : 'rgba(6,182,212,0.35)';
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-          ctx.fill();
-        }
-        this.particleFrame = requestAnimationFrame(animate);
-      };
-      animate();
-    },
-
-    resizeParticlesCanvas() {
-      const canvas = this.$refs.particlesCanvas;
-      if (!canvas) return;
-      canvas.width = Math.max(1, window.innerWidth);
-      canvas.height = Math.max(1, window.innerHeight);
-    },
-
-    launchConfetti() {
-      const canvas = this.$refs.confettiCanvas;
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-      const width = window.innerWidth;
-      const height = window.innerHeight;
-      canvas.width = width;
-      canvas.height = height;
-      const colors = ['#22d3ee', '#38bdf8', '#34d399', '#a78bfa', '#fbbf24'];
-      const pieces = Array.from({ length: 120 }, (_, i) => ({
-        x: width * 0.5,
-        y: height * 0.28,
-        vx: (Math.random() - 0.5) * 13,
-        vy: -Math.random() * 9 - 4,
-        size: Math.random() * 6 + 3,
-        rot: Math.random() * Math.PI * 2,
-        spin: (Math.random() - 0.5) * 0.2,
-        color: colors[i % colors.length],
-      }));
-      if (this.confettiFrame) cancelAnimationFrame(this.confettiFrame);
-      this.showConfetti = true;
-      const gravity = 0.22;
-      const start = performance.now();
-      const tick = (now) => {
-        ctx.clearRect(0, 0, width, height);
-        for (const p of pieces) {
-          p.vy += gravity;
-          p.x += p.vx;
-          p.y += p.vy;
-          p.rot += p.spin;
-          ctx.save();
-          ctx.translate(p.x, p.y);
-          ctx.rotate(p.rot);
-          ctx.fillStyle = p.color;
-          ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
-          ctx.restore();
-        }
-        if (now - start < 2200) {
-          this.confettiFrame = requestAnimationFrame(tick);
-        } else {
-          this.showConfetti = false;
-          ctx.clearRect(0, 0, width, height);
-        }
-      };
-      this.confettiFrame = requestAnimationFrame(tick);
-    },
-
-    // ── Auth ──
     async doLogin() {
       this.authError = '';
       this.authLoading = true;
@@ -1714,9 +1033,9 @@ function cyberlearn() {
       if (pw.length < 6) {
         this.trapStrengthPct = 30; this.trapStrengthLabel = '弱'; this.trapStrengthColor = '#ef4444';
       } else if (pw.length < 10) {
-        this.trapStrengthPct = 85; this.trapStrengthLabel = '強'; this.trapStrengthColor = '#10b981';
+        this.trapStrengthPct = 85; this.trapStrengthLabel = '強'; this.trapStrengthColor = '#22c55e';
       } else {
-        this.trapStrengthPct = 100; this.trapStrengthLabel = '非常強'; this.trapStrengthColor = '#10b981';
+        this.trapStrengthPct = 100; this.trapStrengthLabel = '非常強'; this.trapStrengthColor = '#22c55e';
       }
     },
 
@@ -1725,10 +1044,8 @@ function cyberlearn() {
       this.user = { id: null, nickname: '', xp: 0, level: 1, completed_lessons: [], email: '' };
       this.mapNavOpen = false;
       this.view = 'auth';
-      this.startHeroTyping();
     },
 
-    // ── Email binding ──
     async bindEmail() {
       if (!this.bindEmailInput.trim()) return;
       this.bindEmailLoading = true;
@@ -1754,7 +1071,6 @@ function cyberlearn() {
       }
     },
 
-    // ── Forgot password ──
     async sendResetCode() {
       if (!this.forgotEmail.trim()) return;
       this.authLoading = true;
@@ -1801,15 +1117,11 @@ function cyberlearn() {
       }
     },
 
-    // ── Lessons ──
     async loadLessons() {
       try {
         const res = await fetch('/api/lessons');
-        const data = await res.json();
-        this.lessons = data;
-      } catch(e) {
-        console.error(e);
-      }
+        this.lessons = await res.json();
+      } catch(e) { console.error(e); }
     },
 
     isUnlocked(lessonId) {
@@ -1852,16 +1164,15 @@ function cyberlearn() {
       this.showConfetti = false;
     },
 
-    // ── Trap ──
     updateTrapMeter() {
       const pw = this.trapPassword;
       if (!pw) { this.trapMeterPct = 0; return; }
       if (pw.length < 4) {
         this.trapMeterPct = 25; this.trapMeterLabel = '太弱'; this.trapMeterColor = '#ef4444';
       } else if (pw.length < 6) {
-        this.trapMeterPct = 50; this.trapMeterLabel = '尚可'; this.trapMeterColor = '#f59e0b';
+        this.trapMeterPct = 50; this.trapMeterLabel = '尚可'; this.trapMeterColor = '#eab308';
       } else {
-        this.trapMeterPct = 90; this.trapMeterLabel = '強 ✓'; this.trapMeterColor = '#10b981';
+        this.trapMeterPct = 90; this.trapMeterLabel = '強 ✓'; this.trapMeterColor = '#22c55e';
       }
     },
 
@@ -1871,7 +1182,6 @@ function cyberlearn() {
       this.lessonPhase = 'trap_reveal';
     },
 
-    // ── Quiz ──
     async startQuiz() {
       try {
         const res = await fetch(`/api/questions/${this.currentLesson.id}?user_id=${this.user.id}`);
@@ -1890,20 +1200,12 @@ function cyberlearn() {
       if (this.quizAnswered) return;
       this.selectedAnswer = answer;
       this.quizAnswered = true;
-
       const q = this.quizQuestions[this.currentQuestionIdx];
-      const startTime = Date.now();
-
       try {
         const res = await fetch('/api/answer', {
           method: 'POST',
           headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({
-            user_id: this.user.id,
-            question_id: q.id,
-            answer: answer,
-            time_spent: Math.floor((Date.now() - startTime) / 1000)
-          })
+          body: JSON.stringify({ user_id: this.user.id, question_id: q.id, answer, time_spent: 0 })
         });
         const data = await res.json();
         this.lastAnswerCorrect = data.is_correct;
@@ -1948,6 +1250,41 @@ function cyberlearn() {
       }
       this.lessonPhase = 'complete';
       this.$nextTick(() => this.launchConfetti());
+    },
+
+    launchConfetti() {
+      const canvas = this.$refs.confettiCanvas;
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      const w = window.innerWidth, h = window.innerHeight;
+      canvas.width = w; canvas.height = h;
+      const colors = ['#f97316','#fb923c','#22c55e','#06b6d4','#eab308'];
+      const pieces = Array.from({length:100},(_,i)=>({
+        x: w*0.5, y: h*0.3,
+        vx: (Math.random()-0.5)*12,
+        vy: -Math.random()*8 - 3,
+        size: Math.random()*5+3,
+        rot: Math.random()*Math.PI*2,
+        spin: (Math.random()-0.5)*0.2,
+        color: colors[i%colors.length],
+      }));
+      if (this.confettiFrame) cancelAnimationFrame(this.confettiFrame);
+      this.showConfetti = true;
+      const start = performance.now();
+      const tick = (now) => {
+        ctx.clearRect(0,0,w,h);
+        for (const p of pieces) {
+          p.vy += 0.22; p.x += p.vx; p.y += p.vy; p.rot += p.spin;
+          ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.size/2,-p.size/2,p.size,p.size*0.6);
+          ctx.restore();
+        }
+        if (now - start < 2200) { this.confettiFrame = requestAnimationFrame(tick); }
+        else { this.showConfetti = false; ctx.clearRect(0,0,w,h); }
+      };
+      this.confettiFrame = requestAnimationFrame(tick);
     },
   }
 }
